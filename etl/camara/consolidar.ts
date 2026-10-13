@@ -14,6 +14,7 @@ import {
   maioresNotas,
   mediaMensal,
 } from "../comum/consolidacao";
+import type { VotoNaVotacao } from "../comum/saida";
 import { centavos, percentual } from "../lib/estatistica";
 import { normalizarNome } from "../lib/texto";
 import type { DadosPessoais, Legislatura } from "./api";
@@ -57,6 +58,8 @@ export interface SaidaConsolidacao {
   indice: IndiceDeputados;
   agregados: Agregados;
   votacoes: ListaVotacoes;
+  /** idVotacao → data e votos de cada deputado */
+  votosPorVotacao: Map<string, { data: string; votos: VotoNaVotacao[] }>;
 }
 
 const legislaturaDaData = (legislaturas: Legislatura[], data: string) =>
@@ -155,6 +158,7 @@ export function consolidar(entrada: EntradaConsolidacao): SaidaConsolidacao {
         ),
       })),
     },
+    votosPorVotacao: inverterVotos(indices),
     votacoes: {
       versao: 1,
       atualizadoEm,
@@ -165,6 +169,26 @@ export function consolidar(entrada: EntradaConsolidacao): SaidaConsolidacao {
         ),
     },
   };
+}
+
+/** Dos votos por deputado (como estão nos parciais) para votos por votação. */
+function inverterVotos(indices: Indices): SaidaConsolidacao["votosPorVotacao"] {
+  const resultado: SaidaConsolidacao["votosPorVotacao"] = new Map();
+  for (const parcial of indices.parciais) {
+    for (const [idDeputado, votos] of Object.entries(parcial.votos)) {
+      for (const [idVotacao, voto, partido] of votos) {
+        const registro = indices.votacoes.get(idVotacao);
+        if (!registro) continue;
+        const item = resultado.get(idVotacao) ?? {
+          data: registro.votacao.data,
+          votos: [],
+        };
+        item.votos.push([Number(idDeputado), voto, partido]);
+        resultado.set(idVotacao, item);
+      }
+    }
+  }
+  return resultado;
 }
 
 // --- Índices sobre os parciais de todos os anos

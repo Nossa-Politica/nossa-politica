@@ -9,8 +9,9 @@ import {
   type Medianas,
   Parlamentar,
   type ResumoVotacao,
+  VotosDoAno,
 } from "@etl/comum/saida";
-import { EmendasDoParlamentar } from "@etl/emendas/saida";
+import { EmendasDoParlamentar, EmendasPorUf } from "@etl/emendas/saida";
 import { ListaPessoas, type Pessoa } from "@etl/pessoas/saida";
 import { EleicoesDoParlamentar } from "@etl/tse/saida";
 import type { z } from "zod";
@@ -69,8 +70,37 @@ export function lerEleicoes(casa: Casa, id: number) {
   return ler(`tse/parlamentares/${casa}-${id}.json`, EleicoesDoParlamentar);
 }
 
-function lerAgregados(casa: Casa) {
+export function lerAgregados(casa: Casa) {
   return ler(`${casa}/agregados.json`, Agregados);
+}
+
+export function lerEmendasPorUf() {
+  return ler("emendas/ufs.json", EmendasPorUf);
+}
+
+/** Votações nominais da casa, da mais recente para a mais antiga. */
+export function listarVotacoes(casa: Casa) {
+  return ler(`${casa}/votacoes.json`, ListaVotacoes)?.votacoes ?? [];
+}
+
+/** Votos de cada parlamentar nas votações de um ano (idVotacao → votos). */
+export function lerVotosDoAno(casa: Casa, ano: number) {
+  return ler(`${casa}/votos/${ano}.json`, VotosDoAno)?.votacoes ?? {};
+}
+
+/** Pessoa a partir do registro de uma casa (`camara-204379`). */
+export function pessoaDoRegistro(casa: Casa, id: number): Pessoa | undefined {
+  const chave = "pessoas-por-registro";
+  let indice = cache.get(chave) as Map<string, Pessoa> | undefined;
+  if (!indice) {
+    indice = new Map(
+      lerPessoas().flatMap((p) =>
+        p.registros.map((r) => [`${r.casa}-${r.id}`, p] as const),
+      ),
+    );
+    cache.set(chave, indice);
+  }
+  return indice.get(`${casa}-${id}`);
 }
 
 function lerVotacoes(casa: Casa): Map<string, ResumoVotacao> {

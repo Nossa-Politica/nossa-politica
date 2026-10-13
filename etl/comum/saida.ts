@@ -175,3 +175,21 @@ export const ListaVotacoes = z.object({
   votacoes: z.array(ResumoVotacao.extend({ idLegislatura: z.number() })),
 });
 export type ListaVotacoes = z.infer<typeof ListaVotacoes>;
+
+/** [id do parlamentar, voto, partido dele no dia da votação] */
+export const VotoNaVotacao = z.tuple([z.number(), z.string(), z.string()]);
+export type VotoNaVotacao = z.infer<typeof VotoNaVotacao>;
+
+/**
+ * Como cada parlamentar votou em cada votação nominal de um ano
+ * (`{casa}/votos/AAAA.json`). Fica separado de `votacoes.json` porque é grande
+ * (~4 MB por ano na Câmara) e só as páginas de votação precisam dele.
+ */
+export const VotosDoAno = z.object({
+  versao: z.literal(1),
+  ano: z.number(),
+  atualizadoEm: z.string(),
+  /** idVotacao → votos */
+  votacoes: z.record(z.string(), z.array(VotoNaVotacao)),
+});
+export type VotosDoAno = z.infer<typeof VotosDoAno>;

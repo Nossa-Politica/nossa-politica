@@ -1,4 +1,5 @@
 import type { Alinhamento, MandatoNaLegislatura } from "@etl/comum/saida";
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import type { VotoRecente } from "@/lib/dados";
@@ -107,7 +108,12 @@ export function BlocoVotacoes({
             {recentes.map((v) => (
               <li key={v.id} className="flex flex-col gap-1 py-3">
                 <div className="flex flex-wrap items-center gap-2 text-sm">
-                  <span className="font-medium">{v.titulo}</span>
+                  <Link
+                    href={`/votacoes/${casa}/${encodeURIComponent(v.id)}`}
+                    className="font-medium underline underline-offset-2"
+                  >
+                    {v.titulo}
+                  </Link>
                   <span className="text-muted-foreground">
                     {formatarData(v.data)}
                   </span>

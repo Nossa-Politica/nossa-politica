@@ -177,6 +177,14 @@ describe("consolidarSenado com amostra real", () => {
     );
   });
 
+  it("guarda os votos de cada votação com o partido do dia", () => {
+    expect(saida.votosPorVotacao.get("7042")?.votos).toContainEqual([
+      5672,
+      "Sim",
+      "REPUBLICANOS",
+    ]);
+  });
+
   it("soma as despesas da cota do senador", () => {
     expect(mandato.despesas.porMes).toEqual([
       { mes: "2025-01", valor: 4723.62 },

@@ -11,6 +11,7 @@ import { parseArgs } from "node:util";
 import { buscarLegislaturas } from "../camara/api";
 import { LEGISLATURAS_NO_SITE } from "../camara/config";
 import { registrarFonte } from "../comum/fontes";
+import { escreverVotosPorAno } from "../comum/votos";
 import { escreverJson, hojeEmBrasilia, recriarPasta } from "../lib/arquivos";
 import { mapearComLimite } from "../lib/concorrencia";
 import {
@@ -130,6 +131,7 @@ async function main() {
     join(pastaSenado, "votacoes.json"),
     ListaVotacoes.parse(saida.votacoes),
   );
+  await escreverVotosPorAno(pastaSenado, saida.votosPorVotacao, atualizadoEm);
   await registrarFonte(values.dados, "senado", {
     atualizadoEm,
     origem: [

@@ -14,7 +14,12 @@ import { join } from "node:path";
 import type { z } from "zod";
 import { IndiceDeputados } from "./camara/saida";
 import { Fontes } from "./comum/fontes";
-import { Agregados, ListaVotacoes, Parlamentar } from "./comum/saida";
+import {
+  Agregados,
+  ListaVotacoes,
+  Parlamentar,
+  VotosDoAno,
+} from "./comum/saida";
 import {
   DiagnosticoEmendas,
   EmendasDoParlamentar,
@@ -94,6 +99,8 @@ export async function validarPastaDeDados(pasta: string): Promise<string[]> {
       }
     }
     await ler(`${casa}/votacoes.json`, ListaVotacoes);
+    // Votos por votação (publicados a partir da fase 5)
+    await lerPasta(`${casa}/votos`, VotosDoAno);
     const arquivos = await lerPasta(`${casa}/${chave}`, Parlamentar);
     if (itens && arquivos !== itens.length) {
       problemas.push(

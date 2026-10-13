@@ -136,6 +136,9 @@
   --sequencial-4: #3987e5;
   --sequencial-5: #256abf;
   --sequencial-6: #184f95;
+  /* Votos: azul e laranja validados para daltonismo; não são cores de partido */
+  --voto-sim: #2a78d6;
+  --voto-nao: #eb6834;
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -149,6 +152,8 @@
     --sequencial-4: #3987e5;
     --sequencial-5: #6da7ec;
     --sequencial-6: #9ec5f4;
+    --voto-sim: #3987e5;
+    --voto-nao: #d95926;
   }
 }
 
@@ -157,6 +162,8 @@
   --color-serie-fraca: var(--serie-fraca);
   --color-contexto: var(--contexto);
   --color-contexto-fraco: var(--contexto-fraco);
+  --color-voto-sim: var(--voto-sim);
+  --color-voto-nao: var(--voto-nao);
 }
 
 @layer base {

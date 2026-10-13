@@ -160,3 +160,7 @@ Fonte: [Portal de Dados Abertos do TSE](https://dadosabertos.tse.jus.br/), com c
 - **Neutralidade visual:** um único azul para os dados e cinza para o contexto. Não usamos cores de partido, e ausência ou voto contra não aparece em vermelho.
 - **Votações recentes:** as 10 votações nominais mais recentes do mandato. Um mesmo projeto pode aparecer mais de uma vez, porque o texto principal e cada destaque são votações separadas.
 - **Endereços:** `/politicos/nome-do-politico`. Homônimos ganham a UF no fim (`/politicos/mariana-carvalho-ro`).
+- **Explorar:** todos os parlamentares num indicador, do mandato mais recente de cada um. A mediana marcada é a do grupo filtrado (casa, estado, partido). A ordem pode ser do maior para o menor ou o contrário; não há posições numeradas nem rótulos de "melhor" ou "pior".
+- **Comparar:** até três pessoas, cada número ao lado da mediana da casa de cada uma.
+- **Páginas de votação:** uma por votação nominal. O partido mostrado é o do parlamentar no dia da votação. No Senado, votações secretas mostram só quem compareceu.
+- **Estados:** o gasto da bancada soma todos que exerceram mandato pelo estado na legislatura atual, inclusive suplentes. As emendas recebidas incluem todos os tipos (individual, bancada, comissão e relator), de parlamentares de qualquer estado.

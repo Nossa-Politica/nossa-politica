@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { UFS } from "@/lib/formatar";
 import { ItemPessoa } from "./item-pessoa";
@@ -54,6 +55,12 @@ export function QuemMeRepresenta() {
       )}
       {uf && estado === "pronto" && (
         <div className="flex flex-col gap-4">
+          <Link
+            href={`/estados/${uf.toLowerCase()}`}
+            className="text-sm underline underline-offset-2"
+          >
+            Ver gastos e emendas de {UFS[uf]}
+          </Link>
           <div>
             <h3 className="text-sm font-medium">Senado ({senadores.length})</h3>
             <ul>

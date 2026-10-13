@@ -1,10 +1,20 @@
+import Link from "next/link";
 import { CampoBusca } from "@/components/busca/campo-busca";
 import { QuemMeRepresenta } from "@/components/busca/quem-me-representa";
-import { existemDados, lerFontes } from "@/lib/dados";
+import { ItemVotacao } from "@/components/votacoes/item-votacao";
+import { existemDados, lerFontes, listarVotacoes } from "@/lib/dados";
 import { formatarData } from "@/lib/formatar";
 
 export default function Home() {
   const atualizadoEm = lerFontes()?.camara?.atualizadoEm;
+  const ultimas = (["camara", "senado"] as const)
+    .flatMap((casa) =>
+      listarVotacoes(casa)
+        .slice(0, 4)
+        .map((votacao) => ({ casa, votacao })),
+    )
+    .sort((a, b) => b.votacao.data.localeCompare(a.votacao.data))
+    .slice(0, 5);
 
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-10 px-4 py-10">
@@ -26,6 +36,65 @@ export default function Home() {
       </section>
 
       {existemDados() && <QuemMeRepresenta />}
+
+      {ultimas.length > 0 && (
+        <section
+          aria-labelledby="ultimas-votacoes"
+          className="flex flex-col gap-2"
+        >
+          <h2
+            id="ultimas-votacoes"
+            className="font-heading text-xl font-semibold"
+          >
+            Últimas votações
+          </h2>
+          <ol className="flex flex-col divide-y">
+            {ultimas.map(({ casa, votacao }) => (
+              <ItemVotacao
+                key={`${casa}-${votacao.id}`}
+                casa={casa}
+                votacao={votacao}
+              />
+            ))}
+          </ol>
+          <Link
+            href="/votacoes"
+            className="text-sm underline underline-offset-2"
+          >
+            Ver todas as votações
+          </Link>
+        </section>
+      )}
+
+      {existemDados() && (
+        <section aria-labelledby="mais" className="grid gap-3 sm:grid-cols-3">
+          <h2 id="mais" className="sr-only">
+            Mais formas de explorar
+          </h2>
+          {[
+            [
+              "/explorar",
+              "Explorar",
+              "Todos lado a lado em um indicador, com filtros",
+            ],
+            [
+              "/comparar",
+              "Comparar",
+              "Dois ou três parlamentares nos mesmos números",
+            ],
+            ["/estados", "Estados", "A bancada e as emendas de cada estado"],
+          ].map(([href, titulo, texto]) => (
+            <Link
+              key={href}
+              href={href}
+              className="flex flex-col gap-1 rounded-xl border p-4 hover:bg-muted"
+            >
+              <span className="font-medium">{titulo}</span>
+              <span className="text-sm text-muted-foreground">{texto}</span>
+            </Link>
+          ))}
+        </section>
+      )}
 
       <section className="flex flex-col gap-2 text-sm text-muted-foreground">
         <h2 className="font-heading text-base font-semibold text-foreground">

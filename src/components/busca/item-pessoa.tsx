@@ -4,17 +4,16 @@ import type { ItemBusca } from "@/lib/busca";
 
 export function ItemPessoa({
   item,
-  aoEscolher,
+  comoLink = true,
 }: {
   item: ItemBusca;
-  aoEscolher?: () => void;
+  /** false quando o item fica dentro de um botão (não pode ter link dentro) */
+  comoLink?: boolean;
 }) {
-  return (
-    <Link
-      href={`/politicos/${item.s}`}
-      onClick={aoEscolher}
-      className="flex items-center gap-3 rounded-lg p-2 hover:bg-muted focus-visible:bg-muted"
-    >
+  const classe =
+    "flex items-center gap-3 rounded-lg p-2 hover:bg-muted focus-visible:bg-muted";
+  const conteudo = (
+    <>
       <Image
         src={item.f}
         alt=""
@@ -30,6 +29,13 @@ export function ItemPessoa({
           {item.c} · {item.p}-{item.u}
         </span>
       </span>
+    </>
+  );
+  return comoLink ? (
+    <Link href={`/politicos/${item.s}`} className={classe}>
+      {conteudo}
     </Link>
+  ) : (
+    <span className={classe}>{conteudo}</span>
   );
 }
