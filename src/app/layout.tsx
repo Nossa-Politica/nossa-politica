@@ -27,10 +27,27 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="flex min-h-full flex-col">
         <header className="border-b">
-          <div className="mx-auto flex h-14 w-full max-w-3xl items-center px-4">
+          <div className="mx-auto flex w-full max-w-3xl flex-wrap items-center gap-x-5 gap-y-1 px-4 py-3">
             <Link href="/" className="font-heading font-semibold">
               Nossa Política
             </Link>
+            <nav
+              aria-label="Principal"
+              className="flex gap-4 text-sm text-muted-foreground"
+            >
+              <Link href="/explorar" className="hover:text-foreground">
+                Explorar
+              </Link>
+              <Link href="/comparar" className="hover:text-foreground">
+                Comparar
+              </Link>
+              <Link href="/votacoes" className="hover:text-foreground">
+                Votações
+              </Link>
+              <Link href="/estados" className="hover:text-foreground">
+                Estados
+              </Link>
+            </nav>
           </div>
         </header>
         {children}

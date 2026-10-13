@@ -148,6 +148,43 @@ export function nomeLegislatura(id: number): string {
   return anos ? `${id}ª legislatura (${anos})` : `${id}ª legislatura`;
 }
 
+/** "do Acre", "da Bahia", "de São Paulo" */
+const ARTIGO: Record<string, "do" | "da" | "de"> = {
+  AC: "do",
+  AL: "de",
+  AP: "do",
+  AM: "do",
+  BA: "da",
+  CE: "do",
+  DF: "do",
+  ES: "do",
+  GO: "de",
+  MA: "do",
+  MT: "de",
+  MS: "de",
+  MG: "de",
+  PA: "do",
+  PB: "da",
+  PR: "do",
+  PE: "de",
+  PI: "do",
+  RJ: "do",
+  RN: "do",
+  RS: "do",
+  RO: "de",
+  RR: "de",
+  SC: "de",
+  SP: "de",
+  SE: "de",
+  TO: "do",
+};
+export const deUf = (uf: string) => `${ARTIGO[uf] ?? "de"} ${UFS[uf] ?? uf}`;
+/** "para o Acre", "para a Bahia", "para São Paulo" */
+export const paraUf = (uf: string) => {
+  const a = ARTIGO[uf];
+  return `para ${a === "do" ? "o " : a === "da" ? "a " : ""}${UFS[uf] ?? uf}`;
+};
+
 export const UFS: Record<string, string> = {
   AC: "Acre",
   AL: "Alagoas",

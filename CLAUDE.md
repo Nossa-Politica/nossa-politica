@@ -22,6 +22,7 @@ Site de transparência política: qualquer pessoa encontra um deputado ou senado
 
 - Next.js (App Router), TypeScript, Tailwind CSS v4 e shadcn/ui, com pnpm.
 - Cloudflare Workers via `@opennextjs/cloudflare`. As páginas são geradas no build (uma por político) e o cache de páginas fica nos arquivos estáticos do deploy (`static-assets` em `open-next.config.ts`): não há regeneração entre deploys. O bucket R2 `nossa-politica-cache` existe na conta, mas não está em uso.
+- Páginas: `/` (busca), `/politicos/[slug]`, `/explorar` e `/comparar` (no navegador, a partir de `/api/indicadores`), `/votacoes` e `/votacoes/[casa]/[id]`, `/estados` e `/estados/[uf]`. Tudo gerado no build (~5.400 páginas).
 - O site lê `dados/` só no build (`src/lib/dados.ts`, com os esquemas de `etl/`, importados por `@etl/*`). Para rodar com dados localmente: `pnpm dados:baixar`.
 - Biome (lint e formatação), Vitest (unitários) e Playwright (E2E).
 - GitHub Actions para CI, preview, deploy e ETL.

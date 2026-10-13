@@ -254,6 +254,18 @@ describe("consolidar", () => {
     expect(deputado(1).votacoes.votos).toEqual({ v1: "Sim", v2: "Sim" });
   });
 
+  it("inverte os votos: cada votação com o voto e o partido de cada deputado", () => {
+    expect(saida.votosPorVotacao.get("v1")).toEqual({
+      data: "2025-03-10",
+      votos: expect.arrayContaining([
+        [1, "Sim", "ABC"],
+        [4, "Não", "ABC"],
+      ]),
+    });
+    expect(saida.votosPorVotacao.get("v1")?.votos).toHaveLength(4);
+    expect(saida.votosPorVotacao.get("v2")?.votos).toEqual([[1, "Sim", "ABC"]]);
+  });
+
   it("separa primeiro autor de coautor e conta o que virou norma", () => {
     expect(deputado(1).proposicoes).toMatchObject({
       apresentadas: 1,

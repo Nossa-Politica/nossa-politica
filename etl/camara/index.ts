@@ -13,6 +13,7 @@ import { join } from "node:path";
 import { parseArgs } from "node:util";
 import { z } from "zod";
 import { lerFontes, registrarFonte } from "../comum/fontes";
+import { escreverVotosPorAno } from "../comum/votos";
 import {
   escreverJson,
   hojeEmBrasilia,
@@ -186,6 +187,7 @@ async function main() {
     join(pastaCamara, "votacoes.json"),
     ListaVotacoes.parse(saida.votacoes),
   );
+  await escreverVotosPorAno(pastaCamara, saida.votosPorVotacao, atualizadoEm);
   await registrarFonte(pastaDados, "camara", {
     atualizadoEm,
     anos: anosProcessados,

@@ -1,5 +1,6 @@
 import type { Pessoa } from "@etl/pessoas/saida";
 import Image from "next/image";
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { cargo, nomeLegislatura, UFS } from "@/lib/formatar";
 import type { MandatoDoPerfil } from "@/lib/perfil";
@@ -53,6 +54,12 @@ export function Cabecalho({
       </div>
       <div className="flex flex-wrap items-center gap-3">
         <Compartilhar titulo={`${pessoa.nome} · Nossa Política`} />
+        <Link
+          href={`/comparar?p=${pessoa.slug}`}
+          className="text-sm underline underline-offset-2"
+        >
+          Comparar com outro parlamentar
+        </Link>
         <a
           href={
             (mandatos.find((m) => m.casa === pessoa.casa) ?? mandatos[0])

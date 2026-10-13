@@ -116,6 +116,8 @@ export const VotacaoSenado = z.object({
   totalVotosNao: numero.nullish().transform((v) => v ?? 0),
   totalVotosAbstencao: numero.nullish().transform((v) => v ?? 0),
   idProcesso: numero.nullish(),
+  /** Código usado nas páginas do Senado (matéria) */
+  codigoMateria: numero.nullish(),
   identificacao: texto,
   ementa: texto,
   votos: lista(VotoSenado),

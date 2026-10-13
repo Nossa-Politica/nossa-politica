@@ -25,6 +25,7 @@ import type {
   NotaFiscal,
   Parlamentar,
   ResumoVotacao,
+  VotoNaVotacao,
 } from "../comum/saida";
 import { centavos, percentual } from "../lib/estatistica";
 import { mascararDocumento, mesmoNome, removerAcentos } from "../lib/texto";
@@ -67,6 +68,8 @@ export interface SaidaSenado {
   indice: IndiceSenadores;
   agregados: Agregados;
   votacoes: ListaVotacoes;
+  /** idVotacao → data e votos de cada senador */
+  votosPorVotacao: Map<string, { data: string; votos: VotoNaVotacao[] }>;
 }
 
 const normalizar = (texto: string) =>
@@ -161,9 +164,10 @@ export function consolidarSenado(entrada: EntradaSenado): SaidaSenado {
           outros: v.totalVotosAbstencao,
         },
         proposicao:
-          v.idProcesso != null
+          v.idProcesso != null || v.codigoMateria != null
             ? {
-                id: v.idProcesso,
+                // Mesmo código dos projetos: o que as páginas do Senado usam
+                id: (v.codigoMateria ?? v.idProcesso) as number,
                 titulo: v.identificacao,
                 ementa: v.ementa.trim(),
               }
@@ -264,8 +268,22 @@ export function consolidarSenado(entrada: EntradaSenado): SaidaSenado {
   }
 
   const senadores = atribuirSlugs(semSlug);
+  const votosPorVotacao: SaidaSenado["votosPorVotacao"] = new Map();
+  for (const v of entrada.votacoes) {
+    const id = String(v.codigoSessaoVotacao);
+    if (!resumos.has(id)) continue;
+    votosPorVotacao.set(id, {
+      data: v.dataSessao,
+      votos: v.votos.map((voto) => [
+        voto.codigoParlamentar,
+        voto.siglaVotoParlamentar,
+        voto.siglaPartidoParlamentar,
+      ]),
+    });
+  }
   return {
     senadores,
+    votosPorVotacao,
     indice: {
       versao: 1,
       atualizadoEm,
