@@ -38,6 +38,21 @@ Site de transparência política: qualquer pessoa encontra um deputado ou senado
 - Os testes usam respostas gravadas das APIs e amostras reais dos arquivos (pastas `__fixtures__/`), com CPFs e nomes de pessoas físicas trocados por valores fictícios.
 - **Nunca** coloque CPF ou nome de pessoa física real (fornecedor, doador, passageiro) em fixtures: o repositório é público.
 
+## Blog
+
+- Um post é um arquivo `content/blog/<slug>.mdx`. O Velite valida e compila (`velite.config.ts`) antes do build; o build falha se o frontmatter estiver errado.
+- Frontmatter: `titulo` (até 120 caracteres), `slug`, `data` (AAAA-MM-DD), `resumo` (até 280), `autor` (slug em `content/autores/*.yml`), `tags`, `rascunho` (true esconde o post) e `social` (texto de cada rede: `bluesky` até 300 caracteres, `threads` até 500, `facebook`, `instagram` até 2.200), usado na publicação automática.
+- Componentes disponíveis no MDX (`src/components/blog/componentes-mdx.tsx`):
+  - `<Mediana casa="camara" indicador="presenca" />`: mediana da legislatura atual, lida dos dados no build. Indicadores: `presenca`, `primeiroAutor`, `viraramNorma`, `gastoMensal`.
+  - `<Numero slug="nome-do-politico" indicador="gastoMensal" />`: valor de um parlamentar (os mesmos indicadores do Explorar).
+  - `<Politico slug="nome-do-politico" />`: cartão com foto, números e link para o perfil.
+  - `<MedianasPorUf casa="camara" indicador="gastoMensal" titulo="..." />`: barras com a mediana de cada estado.
+  - `<Barras titulo="..." dados={[{ rotulo, valor }]} formato="moeda" />` e `<Colunas titulo="..." dados={[{ ano, valor }]} />`: gráficos com dados do próprio post.
+  - `<Destaque>`, `<Fonte nome="..." url="..." />` e `<TermoGlossario chave="cota">`.
+- **Prefira os componentes que leem dados a números digitados**: o post se atualiza sozinho e não fica com número errado. Todo número digitado precisa de `<Fonte>`.
+- Os mesmos princípios do site valem para os posts: neutralidade, sem adjetivos sobre parlamentares, o mesmo critério para todos, linguagem simples.
+- A imagem de compartilhamento (`public/og/blog/<slug>.png`) é gerada no build por `scripts/og/gerar.tsx`.
+
 ## Comandos
 
 | Comando | O que faz |
@@ -54,6 +69,7 @@ Site de transparência política: qualquer pessoa encontra um deputado ou senado
 | `pnpm etl:camara` | Carga da Câmara em `./dados` (anos recentes e os que faltam). `--completo` reprocessa tudo (~3 min, ~3,5 GB de downloads); `--anos ""` só reconsolida |
 | `pnpm etl:senado` | Carga do Senado (~1 min) |
 | `pnpm etl:pessoas` | Lista de pessoas (`dados/pessoas.json`): junta Câmara e Senado da mesma pessoa e define os endereços `/politicos/[slug]` |
+| `pnpm conteudo` | Velite em modo observação: recompila os posts enquanto você edita (use junto com `pnpm dev`) |
 | `pnpm dados:baixar` | Baixa a branch `dados` para `./dados`, para rodar o site com dados localmente |
 | `pnpm etl:emendas` | Emendas do Portal da Transparência (~10 s; precisa de Câmara e Senado em `./dados`) |
 | `pnpm etl:tse` | Eleições do TSE: só as que faltam. `--recente` refaz a mais recente; `--completo`, todas (~5 min, ~2 GB de downloads) |

@@ -1,0 +1,58 @@
+---
+titulo: Como o Nossa Política mede o trabalho de deputados e senadores
+slug: como-medimos
+data: 2026-10-13
+resumo: De onde vem cada número do site, por que comparamos sempre com a mediana e por que o gasto da cota só pode ser comparado dentro do mesmo estado.
+autor: guilherme-muniz-cardoso
+tags:
+  - metodologia
+social:
+  bluesky: "Como medir o trabalho de um deputado sem cair em número solto? No Nossa Política, todo indicador vem ao lado da mediana, com link para a fonte oficial. Explicamos como:"
+  threads: "Presença, projetos, gastos e votos de todos os deputados e senadores, com dados oficiais e sempre comparados com a mediana dos colegas. Explicamos como cada número é calculado."
+  facebook: "Como o Nossa Política calcula presença, projetos, gastos e votações de deputados e senadores, e por que todo número aparece ao lado da mediana."
+  instagram: "Todo número do Nossa Política vem de uma fonte oficial e aparece ao lado da mediana dos colegas. Leia como calculamos presença, projetos, gastos e votações. Link na bio."
+---
+
+O Nossa Política reúne, num só lugar, o que deputados federais e senadores fizeram desde 2019: quanto gastaram, quantos projetos apresentaram, como votaram e se compareceram. Todos os números vêm de fontes oficiais e são atualizados todos os dias.
+
+Este texto explica as regras que usamos. Elas valem igualmente para todos os parlamentares, de todos os partidos.
+
+## Nenhum número sozinho
+
+Saber que um deputado gastou R$ 400 mil em um ano não diz muito para quem não acompanha o Congresso. Por isso, cada indicador aparece ao lado da <TermoGlossario chave="mediana">mediana</TermoGlossario> dos colegas: o valor do meio, em que metade fica acima e metade abaixo.
+
+Na legislatura atual, a presença mediana dos deputados nas sessões com votação é de <Mediana casa="camara" indicador="presenca" />. Entre os senadores, que contamos pelas votações nominais, é de <Mediana casa="senado" indicador="presenca" />.
+
+<Destaque>
+  Usamos a mediana, e não a média, para que poucos valores muito altos ou muito baixos não distorçam
+  a comparação.
+</Destaque>
+
+## O gasto da cota depende do estado
+
+A cota parlamentar paga passagens, escritório, divulgação e outras despesas do mandato. O limite muda conforme o estado, principalmente por causa do preço das passagens até Brasília. Comparar um deputado de Roraima com um de Goiás seria injusto.
+
+Por isso, no perfil de cada parlamentar, o gasto é comparado com a mediana do mesmo estado. O gráfico mostra como essa mediana varia:
+
+<MedianasPorUf casa="camara" indicador="gastoMensal" titulo="Gasto mediano da cota por mês, deputados federais, por estado" />
+
+<Fonte nome="Cota parlamentar da Câmara" url="https://www.camara.leg.br/cota-parlamentar/" />
+
+## Projetos: primeiro autor e coautoria
+
+Algumas bancadas assinam projetos em grupo. Se contássemos todas as assinaturas, quem faz parte desses grupos teria centenas de projetos, sem que isso diga muito sobre o trabalho individual. Por isso destacamos os projetos em que o parlamentar é o primeiro a assinar.
+
+A mediana de projetos como primeiro autor na legislatura atual é de <Mediana casa="camara" indicador="primeiroAutor" /> entre os deputados e de <Mediana casa="senado" indicador="primeiroAutor" /> entre os senadores.
+
+## Votações
+
+Mostramos duas medidas de alinhamento:
+
+- **Com o governo:** quantas vezes o voto foi igual à orientação do líder do governo.
+- **Com o partido:** quantas vezes o voto foi igual ao da maioria dos colegas de partido naquela votação.
+
+Nenhuma delas é boa ou ruim em si. Elas ajudam a entender como cada um costuma votar.
+
+## Onde ver os detalhes
+
+Todas as regras, com as limitações de cada fonte, estão na [metodologia completa](https://github.com/guilhermemcardoso/nossa-politica/blob/main/docs/METODOLOGIA.md). O código do site é aberto, e qualquer pessoa pode conferir como cada número é calculado.

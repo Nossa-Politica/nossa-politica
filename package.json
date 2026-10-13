@@ -3,12 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "velite build && next dev",
+    "build": "velite build && tsx scripts/og/gerar.tsx && next build",
     "start": "next start",
     "lint": "biome check .",
     "format": "biome check --write .",
-    "typecheck": "next typegen && tsc --noEmit",
+    "typecheck": "velite build && next typegen && tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
@@ -23,7 +23,8 @@
     "etl:emendas": "tsx etl/emendas/index.ts",
     "etl:tse": "tsx etl/tse/index.ts",
     "etl:pessoas": "tsx etl/pessoas/index.ts",
-    "dados:baixar": "rm -rf dados && git clone --quiet --depth 1 --branch dados https://github.com/guilhermemcardoso/nossa-politica.git dados && rm -rf dados/.git"
+    "dados:baixar": "rm -rf dados && git clone --quiet --depth 1 --branch dados https://github.com/guilhermemcardoso/nossa-politica.git dados && rm -rf dados/.git",
+    "conteudo": "velite dev"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
@@ -44,6 +45,7 @@
   "devDependencies": {
     "@biomejs/biome": "^2.5.15",
     "@playwright/test": "^1.64.0",
+    "@resvg/resvg-js": "^2.6.2",
     "@tailwindcss/turbopack": "^4",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^7.0.1",
@@ -53,10 +55,13 @@
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^6.1.2",
     "fflate": "^0.8.3",
+    "geist": "^1.7.2",
     "jsdom": "^30.1.2",
+    "satori": "^0.49.1",
     "tailwindcss": "^4",
     "tsx": "^4.23.15",
     "typescript": "^5",
+    "velite": "^0.4.0",
     "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^5.0.3",
     "wrangler": "^4.148.0"
