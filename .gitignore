@@ -27,3 +27,8 @@ coverage/
 
 # dados gerados pelo ETL (publicados na branch `dados`)
 /dados/
+
+# conteúdo compilado pelo Velite e imagens geradas no build
+/.velite/
+/public/static/
+/public/og/

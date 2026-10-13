@@ -2,11 +2,13 @@ import Link from "next/link";
 import { CampoBusca } from "@/components/busca/campo-busca";
 import { QuemMeRepresenta } from "@/components/busca/quem-me-representa";
 import { ItemVotacao } from "@/components/votacoes/item-votacao";
+import { postsPublicados } from "@/lib/blog";
 import { existemDados, lerFontes, listarVotacoes } from "@/lib/dados";
 import { formatarData } from "@/lib/formatar";
 
 export default function Home() {
   const atualizadoEm = lerFontes()?.camara?.atualizadoEm;
+  const posts = postsPublicados().slice(0, 3);
   const ultimas = (["camara", "senado"] as const)
     .flatMap((casa) =>
       listarVotacoes(casa)
@@ -63,6 +65,32 @@ export default function Home() {
           >
             Ver todas as votações
           </Link>
+        </section>
+      )}
+
+      {posts.length > 0 && (
+        <section
+          aria-labelledby="ultimos-posts"
+          className="flex flex-col gap-2"
+        >
+          <h2 id="ultimos-posts" className="font-heading text-xl font-semibold">
+            No blog
+          </h2>
+          <ol className="flex flex-col divide-y">
+            {posts.map((post) => (
+              <li key={post.slug} className="py-3">
+                <Link
+                  href={post.url}
+                  className="flex flex-col gap-1 hover:opacity-80"
+                >
+                  <span className="font-medium">{post.titulo}</span>
+                  <span className="line-clamp-2 text-sm text-muted-foreground">
+                    {post.resumo}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ol>
         </section>
       )}
 
