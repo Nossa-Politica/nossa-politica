@@ -10,7 +10,8 @@ Site de transparência política: qualquer pessoa encontra um deputado ou senado
 - Antes de fazer push, rode `pnpm lint && pnpm typecheck && pnpm test`.
 - Nunca rode `pnpm deploy` à mão: o deploy de produção é feito pelo GitHub Actions no merge.
 - Segredos (tokens, chaves de API) ficam só em GitHub Secrets e nos secrets do Worker, nunca no repositório nem em `wrangler.jsonc`.
-- Textos da interface em português simples, sem jargão; termo técnico vai em tooltip. Veja os princípios em `docs/PLANO.md` (neutralidade, fonte sempre visível, comparação com a mediana).
+- Textos da interface em português simples, sem jargão; termo técnico vai no glossário (`src/lib/glossario.ts`, aberto ao tocar).
+- Gráficos: um azul para os dados e cinzas para contexto (tokens `--serie`, `--contexto` e `--sequencial-*` em `globals.css`), nunca cores de partido nem vermelho/verde para "bom/ruim". Todo gráfico tem tabela alternativa. Veja os princípios em `docs/PLANO.md` (neutralidade, fonte sempre visível, comparação com a mediana).
 - `src/components/ui/` é gerado pelo shadcn (`pnpm dlx shadcn@latest add <componente>`). Evite editar à mão; o Biome ignora essa pasta.
 - O `next` está fixado em `16.3.8` porque o `@opennextjs/cloudflare` ainda quebra com o Next 16.4 ([issue #1355](https://github.com/opennextjs/opennextjs-cloudflare/issues/1355)). Só atualize depois que a correção sair e o `pnpm preview` funcionar.
 - Depois de mudar `wrangler.jsonc`, rode `pnpm cf-typegen` e faça commit do `cloudflare-env.d.ts`.
@@ -20,7 +21,8 @@ Site de transparência política: qualquer pessoa encontra um deputado ou senado
 ## Stack
 
 - Next.js (App Router), TypeScript, Tailwind CSS v4 e shadcn/ui, com pnpm.
-- Cloudflare Workers via `@opennextjs/cloudflare`, com cache incremental (ISR) no R2 (bucket `nossa-politica-cache`, binding `NEXT_INC_CACHE_R2_BUCKET`).
+- Cloudflare Workers via `@opennextjs/cloudflare`. As páginas são geradas no build (uma por político) e o cache de páginas fica nos arquivos estáticos do deploy (`static-assets` em `open-next.config.ts`): não há regeneração entre deploys. O bucket R2 `nossa-politica-cache` existe na conta, mas não está em uso.
+- O site lê `dados/` só no build (`src/lib/dados.ts`, com os esquemas de `etl/`, importados por `@etl/*`). Para rodar com dados localmente: `pnpm dados:baixar`.
 - Biome (lint e formatação), Vitest (unitários) e Playwright (E2E).
 - GitHub Actions para CI, preview, deploy e ETL.
 - Zod para validar dados de fontes externas e os arquivos publicados.
@@ -50,6 +52,8 @@ Site de transparência política: qualquer pessoa encontra um deputado ou senado
 | `pnpm cf-typegen` | Regenera `cloudflare-env.d.ts` a partir de `wrangler.jsonc` |
 | `pnpm etl:camara` | Carga da Câmara em `./dados` (anos recentes e os que faltam). `--completo` reprocessa tudo (~3 min, ~3,5 GB de downloads); `--anos ""` só reconsolida |
 | `pnpm etl:senado` | Carga do Senado (~1 min) |
+| `pnpm etl:pessoas` | Lista de pessoas (`dados/pessoas.json`): junta Câmara e Senado da mesma pessoa e define os endereços `/politicos/[slug]` |
+| `pnpm dados:baixar` | Baixa a branch `dados` para `./dados`, para rodar o site com dados localmente |
 | `pnpm etl:emendas` | Emendas do Portal da Transparência (~10 s; precisa de Câmara e Senado em `./dados`) |
 | `pnpm etl:tse` | Eleições do TSE: só as que faltam. `--recente` refaz a mais recente; `--completo`, todas (~5 min, ~2 GB de downloads) |
 | `pnpm etl:validar [pasta]` | Valida os arquivos de dados (formato e limites de bom senso) |
