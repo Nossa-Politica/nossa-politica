@@ -78,16 +78,23 @@ export async function buscarDeputadosDaLegislatura(
 const DeputadoDoArquivo = z.object({
   uri: z.string(),
   nomeCivil: z.string().nullish(),
+  siglaSexo: z.string().nullish(),
 });
 
+export interface DadosPessoais {
+  nomeCivil?: string;
+  sexo?: "F" | "M";
+}
+
 /**
- * Nome civil de todos os deputados, do arquivo em massa `deputados.json`
- * (um arquivo de ~4 MB em vez de uma chamada por deputado). Serve para a busca
- * e para cruzar com o TSE, que usa o nome completo.
+ * Nome civil e sexo de todos os deputados, do arquivo em massa
+ * `deputados.json` (um arquivo de ~4 MB em vez de uma chamada por deputado).
+ * O nome civil serve para a busca e para cruzar com o TSE; o sexo, para
+ * escrever "deputada" ou "deputado".
  */
-export async function buscarNomesCivis(
+export async function buscarDadosPessoais(
   opcoes: OpcoesHttp = {},
-): Promise<Map<number, string>> {
+): Promise<Map<number, DadosPessoais>> {
   const json = await buscarJson(
     "https://dadosabertos.camara.leg.br/arquivos/deputados/json/deputados.json",
     opcoes,
@@ -97,12 +104,16 @@ export async function buscarNomesCivis(
     extrairDados(json, "deputados.json"),
     "deputados.json",
   );
-  const nomes = new Map<number, string>();
-  for (const { uri, nomeCivil } of linhas) {
+  const dados = new Map<number, DadosPessoais>();
+  for (const { uri, nomeCivil, siglaSexo } of linhas) {
     const id = Number(uri.split("/").pop());
-    if (Number.isInteger(id) && nomeCivil) nomes.set(id, nomeCivil.trim());
+    if (!Number.isInteger(id)) continue;
+    dados.set(id, {
+      nomeCivil: nomeCivil?.trim() || undefined,
+      sexo: siglaSexo === "F" || siglaSexo === "M" ? siglaSexo : undefined,
+    });
   }
-  return nomes;
+  return dados;
 }
 
 /** Entradas, saídas, licenças e trocas de partido de um deputado. */

@@ -9,6 +9,7 @@
  * em `fontes.json`, para que o deploy funcione enquanto uma fonte nova ainda
  * não foi publicada pela primeira vez.
  */
+import { existsSync } from "node:fs";
 import { join } from "node:path";
 import type { z } from "zod";
 import { IndiceDeputados } from "./camara/saida";
@@ -20,6 +21,7 @@ import {
   EmendasPorUf,
 } from "./emendas/saida";
 import { lerJson, listarArquivos } from "./lib/arquivos";
+import { ListaPessoas } from "./pessoas/saida";
 import { IndiceSenadores } from "./senado/saida";
 import { DiagnosticoTse, EleicoesDoParlamentar } from "./tse/saida";
 
@@ -99,6 +101,26 @@ export async function validarPastaDeDados(pasta: string): Promise<string[]> {
       );
     }
     totais[casa] = arquivos;
+  }
+
+  // Lista de pessoas: uma por pessoa, com slug único (endereço no site)
+  if (existsSync(join(pasta, "pessoas.json"))) {
+    const lista = await ler("pessoas.json", ListaPessoas);
+    if (lista) {
+      const slugs = new Set(lista.pessoas.map((p) => p.slug));
+      if (slugs.size !== lista.pessoas.length) {
+        problemas.push("pessoas.json: há slugs repetidos.");
+      }
+      const registros = lista.pessoas.reduce(
+        (s, p) => s + p.registros.length,
+        0,
+      );
+      if (registros !== totais.camara + totais.senado) {
+        problemas.push(
+          `pessoas.json: ${registros} registros, mas há ${totais.camara + totais.senado} parlamentares.`,
+        );
+      }
+    }
   }
 
   if (fontes?.emendas) {

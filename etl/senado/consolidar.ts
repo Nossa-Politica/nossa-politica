@@ -245,6 +245,12 @@ export function consolidarSenado(entrada: EntradaSenado): SaidaSenado {
       id: codigo,
       nome: id.NomeParlamentar.trim(),
       nomeCivil: id.NomeCompletoParlamentar.trim() || undefined,
+      sexo:
+        id.SexoParlamentar === "Feminino"
+          ? "F"
+          : id.SexoParlamentar === "Masculino"
+            ? "M"
+            : undefined,
       partido: atual.partido,
       uf: atual.uf,
       urlFoto:
@@ -269,6 +275,7 @@ export function consolidarSenado(entrada: EntradaSenado): SaidaSenado {
           slug: s.slug,
           nome: s.nome,
           nomeCivil: s.nomeCivil,
+          sexo: s.sexo,
           partido: s.partido,
           uf: s.uf,
           urlFoto: s.urlFoto,
@@ -384,7 +391,8 @@ function montarMandato(
         b.dataApresentacao.localeCompare(a.dataApresentacao) || b.id - a.id,
     )
     .map((p) => ({
-      id: p.id,
+      // O código da matéria é o que as páginas do Senado usam nos endereços
+      id: p.codigoMateria ?? p.id,
       sigla: p.identificacao,
       tipo: p.identificacao.split(" ")[0],
       ementa: p.ementa.trim(),

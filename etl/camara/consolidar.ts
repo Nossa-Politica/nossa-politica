@@ -16,7 +16,7 @@ import {
 } from "../comum/consolidacao";
 import { centavos, percentual } from "../lib/estatistica";
 import { normalizarNome } from "../lib/texto";
-import type { Legislatura } from "./api";
+import type { DadosPessoais, Legislatura } from "./api";
 import { SITUACAO_VIROU_NORMA } from "./config";
 import type { DeputadoDaLista, ItemHistorico } from "./esquemas";
 import {
@@ -45,8 +45,8 @@ export interface EntradaConsolidacao {
   deputadosPorLegislatura: Map<number, DeputadoDaLista[]>;
   /** idDeputado → histórico */
   historicos: Map<number, ItemHistorico[]>;
-  /** idDeputado → nome civil (arquivo `deputados.json` da Câmara) */
-  nomesCivis?: Map<number, string>;
+  /** idDeputado → nome civil e sexo (arquivo `deputados.json` da Câmara) */
+  dadosPessoais?: Map<number, DadosPessoais>;
   parciais: ParcialAno[];
   hoje: string;
   atualizadoEm: string;
@@ -104,7 +104,8 @@ export function consolidar(entrada: EntradaConsolidacao): SaidaConsolidacao {
       versao: 1,
       id,
       nome: atual.nome,
-      nomeCivil: entrada.nomesCivis?.get(id),
+      nomeCivil: entrada.dadosPessoais?.get(id)?.nomeCivil,
+      sexo: entrada.dadosPessoais?.get(id)?.sexo,
       outrosNomes: outrosNomes(
         nomesDoHistorico(entrada.historicos.get(id) ?? []),
         atual.nome,
@@ -132,6 +133,7 @@ export function consolidar(entrada: EntradaConsolidacao): SaidaConsolidacao {
           slug: d.slug,
           nome: d.nome,
           nomeCivil: d.nomeCivil,
+          sexo: d.sexo,
           partido: d.partido,
           uf: d.uf,
           urlFoto: d.urlFoto,

@@ -1,6 +1,9 @@
 import { defineCloudflareConfig } from "@opennextjs/cloudflare";
-import r2IncrementalCache from "@opennextjs/cloudflare/overrides/incremental-cache/r2-incremental-cache";
+import staticAssetsIncrementalCache from "@opennextjs/cloudflare/overrides/incremental-cache/static-assets-incremental-cache";
 
+// As páginas só mudam a cada deploy (depois da carga diária de dados), então
+// o cache de páginas fica nos arquivos estáticos do próprio deploy: não expira
+// e não ocupa o R2.
 export default defineCloudflareConfig({
-  incrementalCache: r2IncrementalCache,
+  incrementalCache: staticAssetsIncrementalCache,
 });

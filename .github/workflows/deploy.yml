@@ -32,6 +32,5 @@ jobs:
           pnpm test
       # Se os dados não passarem na validação, o deploy não sai
       - uses: ./.github/actions/dados
-      - uses: ./.github/actions/ensure-r2-bucket
       - name: Build e deploy na Cloudflare
         run: pnpm run deploy

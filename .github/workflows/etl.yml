@@ -57,6 +57,12 @@ jobs:
         continue-on-error: true
         run: pnpm etl:senado --dados dados
 
+      # Lista de pessoas (busca e endereços do site), a partir de Câmara e Senado
+      - name: Pessoas
+        id: pessoas
+        continue-on-error: true
+        run: pnpm etl:pessoas --dados dados
+
       # Emendas e TSE cruzam com os parlamentares da Câmara e do Senado
       - name: Emendas parlamentares (Portal da Transparência)
         id: emendas
@@ -93,9 +99,11 @@ jobs:
       - name: Avisar se alguma fonte falhou
         if: >-
           steps.camara.outcome == 'failure' || steps.senado.outcome == 'failure' ||
+          steps.pessoas.outcome == 'failure' ||
           steps.emendas.outcome == 'failure' || steps.tse.outcome == 'failure'
         run: |
           echo "::error::Fontes com falha (publicadas com os dados da carga anterior):" \
             "câmara=${{ steps.camara.outcome }} senado=${{ steps.senado.outcome }}" \
+            "pessoas=${{ steps.pessoas.outcome }}" \
             "emendas=${{ steps.emendas.outcome }} tse=${{ steps.tse.outcome }}"
           exit 1

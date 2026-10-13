@@ -7,6 +7,7 @@ Como cada número do site é calculado a partir dos dados oficiais. Toda regra v
 - [Emendas parlamentares](#emendas-parlamentares)
 - [Eleições (TSE)](#eleições-tse)
 - [Medianas](#medianas-comparações) e [validação](#validação)
+- [No site](#no-site)
 
 # Câmara dos Deputados
 
@@ -149,3 +150,13 @@ Fonte: [Portal de Dados Abertos do TSE](https://dadosabertos.tse.jus.br/), com c
   - 90% dos parlamentares ligados a alguma eleição.
 
   Se algo falhar, o site continua com os dados anteriores.
+
+# No site
+
+- **Uma página por pessoa:** quem passou pelas duas casas (por exemplo, deputado que virou senador) tem uma página só, com uma aba por mandato. A ligação é pelo nome civil e por uma UF em comum.
+- **Comparações:** cada número aparece ao lado da mediana, escrito em palavras ("1,5 pontos acima da mediana dos deputados").
+  - Presença e projetos: comparados com a mediana da casa.
+  - Gasto da cota: comparado com a mediana do mesmo estado, porque o limite da cota muda conforme a UF.
+- **Neutralidade visual:** um único azul para os dados e cinza para o contexto. Não usamos cores de partido, e ausência ou voto contra não aparece em vermelho.
+- **Votações recentes:** as 10 votações nominais mais recentes do mandato. Um mesmo projeto pode aparecer mais de uma vez, porque o texto principal e cada destaque são votações separadas.
+- **Endereços:** `/politicos/nome-do-politico`. Homônimos ganham a UF no fim (`/politicos/mariana-carvalho-ro`).

@@ -18,13 +18,6 @@
       "service": "nossa-politica"
     }
   ],
-  "r2_buckets": [
-    {
-      // Cache incremental (ISR) do OpenNext. O bucket é criado pelos workflows de CI/deploy.
-      "binding": "NEXT_INC_CACHE_R2_BUCKET",
-      "bucket_name": "nossa-politica-cache"
-    }
-  ],
   "images": {
     "binding": "IMAGES"
   },

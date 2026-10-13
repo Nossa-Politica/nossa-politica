@@ -1,0 +1,157 @@
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { BlocoEleicoes } from "@/components/perfil/bloco-eleicoes";
+import { BlocoEmendas } from "@/components/perfil/bloco-emendas";
+import { BlocoGastos } from "@/components/perfil/bloco-gastos";
+import { BlocoPresenca } from "@/components/perfil/bloco-presenca";
+import { BlocoProjetos } from "@/components/perfil/bloco-projetos";
+import { BlocoVotacoes } from "@/components/perfil/bloco-votacoes";
+import { Cabecalho } from "@/components/perfil/cabecalho";
+import { CartoesResumo } from "@/components/perfil/cartoes-resumo";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cargo, formatarInteiro, nomeLegislatura, UFS } from "@/lib/formatar";
+import {
+  carregarPerfil,
+  type MandatoDoPerfil,
+  slugsDosPerfis,
+} from "@/lib/perfil";
+
+// Todas as páginas são geradas no build; endereço fora da lista é 404
+export const dynamicParams = false;
+
+export function generateStaticParams() {
+  return slugsDosPerfis().map((slug) => ({ slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: PageProps<"/politicos/[slug]">): Promise<Metadata> {
+  const { slug } = await params;
+  const perfil = carregarPerfil(slug);
+  if (!perfil) return {};
+  const { pessoa } = perfil;
+  const descricao = `${cargo(pessoa.casa, pessoa.sexo)} (${pessoa.partido}-${pessoa.uf}): gastos, projetos, votações, presença, emendas e eleições, com dados oficiais.`;
+  return {
+    title: `${pessoa.nome} · Nossa Política`,
+    description: descricao,
+    openGraph: { title: pessoa.nome, description: descricao, type: "profile" },
+  };
+}
+
+function rotuloAba(m: MandatoDoPerfil) {
+  return `${m.casa === "camara" ? "Câmara" : "Senado"} ${m.mandato.idLegislatura}ª`;
+}
+
+/** Os blocos de um mandato (uma legislatura numa casa). */
+function Mandato({
+  m,
+  atualizadoEm,
+}: {
+  m: MandatoDoPerfil;
+  atualizadoEm?: string;
+}) {
+  const id = (bloco: string) => `${bloco}-${m.chave}`;
+  return (
+    <div className="flex flex-col gap-8">
+      <p className="text-sm text-muted-foreground">
+        {nomeLegislatura(m.mandato.idLegislatura)} · {m.mandato.partido} ·{" "}
+        {UFS[m.mandato.uf] ?? m.mandato.uf} ·{" "}
+        {formatarInteiro(m.mandato.diasEmExercicio)} dias no cargo
+      </p>
+      <CartoesResumo casa={m.casa} mandato={m.mandato} medianas={m.medianas} />
+      <BlocoGastos
+        id={id("gastos")}
+        casa={m.casa}
+        mandato={m.mandato}
+        medianaUf={m.medianas.uf}
+        atualizadoEm={atualizadoEm}
+      />
+      <BlocoProjetos
+        id={id("projetos")}
+        casa={m.casa}
+        mandato={m.mandato}
+        medianaCasa={m.medianas.casa}
+        atualizadoEm={atualizadoEm}
+      />
+      <BlocoVotacoes
+        id={id("votacoes")}
+        casa={m.casa}
+        mandato={m.mandato}
+        recentes={m.votosRecentes}
+        atualizadoEm={atualizadoEm}
+      />
+      <BlocoPresenca
+        id={id("presenca")}
+        casa={m.casa}
+        mandato={m.mandato}
+        medianaCasa={m.medianas.casa}
+        atualizadoEm={atualizadoEm}
+      />
+    </div>
+  );
+}
+
+export default async function PaginaPolitico({
+  params,
+}: PageProps<"/politicos/[slug]">) {
+  const { slug } = await params;
+  const perfil = carregarPerfil(slug);
+  if (!perfil) notFound();
+  const { pessoa, mandatos, emendas, eleicoes, atualizadoEm } = perfil;
+
+  return (
+    <main className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-4 py-8">
+      <Cabecalho pessoa={pessoa} mandatos={mandatos} />
+
+      {mandatos.length === 1 ? (
+        <Mandato
+          m={mandatos[0]}
+          atualizadoEm={atualizadoEm[mandatos[0].casa]}
+        />
+      ) : (
+        <Tabs defaultValue={mandatos[0].chave} className="gap-6">
+          <div className="flex flex-col gap-2">
+            <p className="text-sm text-muted-foreground">Escolha o mandato:</p>
+            <TabsList className="flex-wrap">
+              {mandatos.map((m) => (
+                <TabsTrigger key={m.chave} value={m.chave}>
+                  {rotuloAba(m)}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </div>
+          {mandatos.map((m) => (
+            <TabsContent key={m.chave} value={m.chave}>
+              <Mandato m={m} atualizadoEm={atualizadoEm[m.casa]} />
+            </TabsContent>
+          ))}
+        </Tabs>
+      )}
+
+      <BlocoEmendas
+        id="emendas"
+        emendas={emendas}
+        ufDoParlamentar={pessoa.uf}
+        atualizadoEm={atualizadoEm.emendas}
+      />
+      <BlocoEleicoes
+        id="eleicoes"
+        eleicoes={eleicoes}
+        atualizadoEm={atualizadoEm.tse}
+      />
+
+      <p className="border-t pt-6 text-xs text-muted-foreground">
+        Como calculamos cada número:{" "}
+        <a
+          href="https://github.com/guilhermemcardoso/nossa-politica/blob/main/docs/METODOLOGIA.md"
+          className="underline underline-offset-2"
+          target="_blank"
+          rel="noopener"
+        >
+          metodologia
+        </a>
+        . Todos os parlamentares são avaliados pelos mesmos critérios.
+      </p>
+    </main>
+  );
+}

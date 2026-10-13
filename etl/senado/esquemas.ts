@@ -50,6 +50,7 @@ export const SenadorDaLista = z.object({
     CodigoParlamentar: numero,
     NomeParlamentar: z.string(),
     NomeCompletoParlamentar: texto,
+    SexoParlamentar: texto,
     UrlFotoParlamentar: texto,
     UrlPaginaParlamentar: texto,
   }),
@@ -147,6 +148,8 @@ export type DespesaCeaps = z.infer<typeof DespesaCeaps>;
 
 export const ProcessoSenado = z.object({
   id: numero,
+  /** Código usado nas páginas do Senado (matéria) */
+  codigoMateria: numero.nullish(),
   identificacao: z.string(),
   autoria: texto,
   ementa: texto,

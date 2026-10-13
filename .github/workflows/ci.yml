@@ -24,6 +24,8 @@ jobs:
         run: pnpm typecheck
       - name: Testes unitários (Vitest)
         run: pnpm test
+      # As páginas dos políticos são geradas a partir da branch `dados`
+      - uses: ./.github/actions/dados
       - name: Build do Worker (OpenNext)
         run: pnpm build:worker
 
@@ -42,7 +44,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
-      - uses: ./.github/actions/ensure-r2-bucket
+      - uses: ./.github/actions/dados
 
       - name: Build do Worker (OpenNext)
         run: pnpm build:worker

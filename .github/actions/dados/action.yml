@@ -10,6 +10,10 @@ runs:
         if git ls-remote --exit-code --heads "$REPO" dados > /dev/null; then
           git clone --quiet --depth 1 --branch dados "$REPO" dados
           rm -rf dados/.git
+          # Cargas anteriores à lista de pessoas: gera a partir de Câmara e Senado
+          if [ ! -f dados/pessoas.json ] && [ -d dados/camara/deputados ]; then
+            pnpm etl:pessoas --dados dados
+          fi
           pnpm etl:validar dados
         else
           echo "::notice::Branch dados ainda não existe; build sem dados."

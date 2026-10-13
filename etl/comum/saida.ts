@@ -114,6 +114,7 @@ export const Parlamentar = z.object({
   slug: z.string(),
   nome: z.string(),
   nomeCivil: z.string().optional(),
+  sexo: z.enum(["F", "M"]).optional(),
   /** Nomes usados em outras épocas, para cruzar com fontes que usam o nome da época */
   outrosNomes: z.array(z.string()).optional(),
   partido: z.string(),
@@ -131,6 +132,7 @@ export const ItemIndice = Parlamentar.pick({
   slug: true,
   nome: true,
   nomeCivil: true,
+  sexo: true,
   partido: true,
   uf: true,
   urlFoto: true,

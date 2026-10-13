@@ -24,10 +24,10 @@ import {
 import { mapearComLimite } from "../lib/concorrencia";
 import { baixarEProcessarAno } from "./ano";
 import {
+  buscarDadosPessoais,
   buscarDeputadosDaLegislatura,
   buscarHistorico,
   buscarLegislaturas,
-  buscarNomesCivis,
 } from "./api";
 import { CONCORRENCIA_API, LEGISLATURAS_NO_SITE } from "./config";
 import { consolidar } from "./consolidar";
@@ -104,11 +104,13 @@ async function main() {
   const cache = CacheHistoricos.safeParse(
     await lerJsonSeExistir(caminhoHistoricos),
   );
-  const historicos = new Map<number, ItemHistorico[]>(
-    cache.success && !values.completo
+  const anteriores = new Map<number, ItemHistorico[]>(
+    cache.success
       ? Object.entries(cache.data.porDeputado).map(([id, h]) => [Number(id), h])
       : [],
   );
+  // Na carga completa, todos são buscados de novo; os anteriores ficam de reserva
+  const historicos = new Map(values.completo ? [] : anteriores);
   // Quem está na legislatura atual pode mudar de partido ou situação a qualquer dia
   const atual = legislaturas[legislaturas.length - 1].id;
   const paraBuscar = [
@@ -121,14 +123,30 @@ async function main() {
     ),
   ];
   console.log(`Históricos: buscando ${paraBuscar.length} na API`);
+  // A API às vezes deixa uma conexão pendurada. O histórico só muda com
+  // licenças e trocas de partido, então, se a busca falhar, vale o da carga
+  // anterior; só sem ele a carga para.
+  const reaproveitados: number[] = [];
   await mapearComLimite(paraBuscar, CONCORRENCIA_API, async (id) => {
-    historicos.set(id, await buscarHistorico(id));
+    try {
+      historicos.set(id, await buscarHistorico(id, { timeoutMs: 30_000 }));
+    } catch (erro) {
+      const anterior = anteriores.get(id);
+      if (!anterior) throw erro;
+      historicos.set(id, anterior);
+      reaproveitados.push(id);
+    }
   });
+  if (reaproveitados.length > 0) {
+    console.warn(
+      `⚠ Históricos da carga anterior reaproveitados (API não respondeu): ${reaproveitados.join(", ")}`,
+    );
+  }
   await escreverJson(caminhoHistoricos, {
     atualizadoEm,
     porDeputado: Object.fromEntries(historicos),
   });
-  const nomesCivis = await buscarNomesCivis();
+  const dadosPessoais = await buscarDadosPessoais();
 
   // 4. Consolidação
   const parciais: ParcialAno[] = [];
@@ -141,7 +159,7 @@ async function main() {
     legislaturas,
     deputadosPorLegislatura,
     historicos,
-    nomesCivis,
+    dadosPessoais,
     parciais,
     hoje,
     atualizadoEm,
