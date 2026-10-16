@@ -45,12 +45,14 @@ function diasAntes(data: string, dias: number): string {
 /**
  * Posts que ainda não saíram na rede: publicados no site, com texto para a
  * rede, recentes e fora do registro. Do mais antigo para o mais novo.
+ * `refazer` entra na fila mesmo que seja antigo.
  */
 export function pendentes(
   posts: PostSocial[],
   registro: Registro,
   rede: Rede,
   dataDeHoje: string,
+  refazer?: string,
 ): PostSocial[] {
   const limite = diasAntes(dataDeHoje, DIAS_MAXIMOS);
   const publicados = registro[rede] ?? {};
@@ -60,7 +62,7 @@ export function pendentes(
         !p.rascunho &&
         p.social[rede]?.trim() &&
         !publicados[p.slug] &&
-        p.data.slice(0, 10) >= limite,
+        (p.data.slice(0, 10) >= limite || p.slug === refazer),
     )
     .sort((a, b) => a.data.localeCompare(b.data));
 }

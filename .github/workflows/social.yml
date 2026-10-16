@@ -11,6 +11,10 @@ on:
         description: Só simular (mostra o que sairia, sem publicar)
         type: boolean
         default: true
+      refazer:
+        description: Slug de um post já publicado para apagar e publicar de novo (opcional)
+        type: string
+        default: ""
 
 concurrency:
   group: social
@@ -30,6 +34,7 @@ jobs:
     env:
       REPO: https://github.com/${{ github.repository }}.git
       SIMULACAO: ${{ inputs.dry_run }}
+      REFAZER: ${{ inputs.refazer }}
     steps:
       # O mesmo commit que acabou de ir para produção
       - uses: actions/checkout@v7
@@ -53,7 +58,10 @@ jobs:
         env:
           BLUESKY_HANDLE: ${{ vars.BLUESKY_HANDLE }}
           BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
-        run: pnpm social:publicar --log .social/social-log.json $([ "$SIMULACAO" = "true" ] && echo --dry-run)
+        run: |
+          pnpm social:publicar --log .social/social-log.json \
+            $([ "$SIMULACAO" = "true" ] && echo --dry-run) \
+            ${REFAZER:+--refazer "$REFAZER"}
 
       # Roda mesmo se um post falhou, para guardar os que saíram
       - name: Salvar o registro
