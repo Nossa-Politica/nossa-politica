@@ -1,0 +1,74 @@
+name: Redes sociais
+
+on:
+  # Depois de cada deploy de produção: a página do post já está no ar
+  workflow_run:
+    workflows: [Deploy]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Só simular (mostra o que sairia, sem publicar)
+        type: boolean
+        default: true
+
+concurrency:
+  group: social
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  publicar:
+    name: publicar
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-latest
+    env:
+      REPO: https://github.com/${{ github.repository }}.git
+      SIMULACAO: ${{ inputs.dry_run }}
+    steps:
+      # O mesmo commit que acabou de ir para produção
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - uses: ./.github/actions/setup
+
+      - name: Compilar os posts (Velite)
+        run: pnpm exec velite build
+
+      - name: Baixar o registro (branch social)
+        run: |
+          if git ls-remote --exit-code --heads "$REPO" social > /dev/null; then
+            git clone --quiet --depth 1 --branch social "$REPO" .social
+          else
+            echo "::notice::Branch social ainda não existe; será criada na primeira publicação."
+            git init --quiet --initial-branch social .social
+          fi
+
+      - name: Publicar no Bluesky
+        env:
+          BLUESKY_HANDLE: ${{ vars.BLUESKY_HANDLE }}
+          BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
+        run: pnpm social:publicar --log .social/social-log.json $([ "$SIMULACAO" = "true" ] && echo --dry-run)
+
+      # Roda mesmo se um post falhou, para guardar os que saíram
+      - name: Salvar o registro
+        if: always() && env.SIMULACAO != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        working-directory: .social
+        run: |
+          git add --all
+          if git diff --cached --quiet; then
+            echo "Registro sem mudanças."
+            exit 0
+          fi
+          git -c user.name="github-actions[bot]" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit --quiet --message "Publicações de $(TZ=America/Sao_Paulo date +%F)"
+          git push --quiet \
+            "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" social

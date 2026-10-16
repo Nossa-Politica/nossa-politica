@@ -7,7 +7,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { z } from "zod";
-import { gerarImagem } from "./imagem";
+import { gerarImagem, imagemDoPost } from "./imagem";
 
 const PASTA = join(process.cwd(), "public/og");
 
@@ -39,11 +39,7 @@ async function main() {
   for (const post of posts.filter((p) => !p.rascunho)) {
     await writeFile(
       join(PASTA, "blog", `${post.slug}.png`),
-      await gerarImagem({
-        chapeu: "Blog",
-        titulo: post.titulo,
-        subtitulo: post.resumo,
-      }),
+      await imagemDoPost(post),
     );
   }
   console.log(`Imagens de compartilhamento: padrão e ${posts.length} post(s).`);

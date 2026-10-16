@@ -140,3 +140,12 @@ export async function gerarImagem({
     .render()
     .asPng();
 }
+
+/** Imagem de um post do blog: a mesma no site e nas redes. */
+export function imagemDoPost(post: { titulo: string; resumo: string }) {
+  return gerarImagem({
+    chapeu: "Blog",
+    titulo: post.titulo,
+    subtitulo: post.resumo,
+  });
+}
