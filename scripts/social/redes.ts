@@ -1,5 +1,6 @@
-import { imagemDoPost } from "../og/imagem";
+import { imagemDoPost, imagemVerticalDoPost } from "../og/imagem";
 import * as bluesky from "./bluesky";
+import * as meta from "./meta";
 import type { PostSocial, Rede } from "./posts";
 import * as threads from "./threads";
 
@@ -14,9 +15,11 @@ export interface Publicado {
 }
 
 export interface Conta {
-  publicacaoDoLink(link: string): Promise<Publicado | undefined>;
+  /** Procura na conta um post deste link (segunda proteção contra repetição) */
+  jaPublicado(post: PostSocial, link: string): Promise<Publicado | undefined>;
   publicar(post: PostSocial, link: string): Promise<Publicado>;
-  apagar(id: string): Promise<void>;
+  /** Ausente quando a API da rede não permite apagar (Instagram) */
+  apagar?(id: string): Promise<void>;
 }
 
 export interface Destino {
@@ -67,7 +70,7 @@ const destinoBluesky: Destino = {
       url: bluesky.enderecoDoPost(id, handle),
     });
     return {
-      async publicacaoDoLink(link) {
+      async jaPublicado(_post, link) {
         const id = await conta.publicacaoDoLink(link);
         return id ? publicado(id) : undefined;
       },
@@ -107,7 +110,7 @@ const destinoThreads: Destino = {
       token: env("THREADS_ACCESS_TOKEN"),
     });
     return {
-      publicacaoDoLink: (link) => conta.publicacaoDoLink(link),
+      jaPublicado: (_post, link) => conta.publicacaoDoLink(link),
       publicar: (post, link) =>
         conta.publicar({ texto: textoDe(post, "threads"), link }),
       apagar: (id) => conta.apagar(id),
@@ -115,4 +118,79 @@ const destinoThreads: Destino = {
   },
 };
 
-export const DESTINOS: Destino[] = [destinoBluesky, destinoThreads];
+const destinoFacebook: Destino = {
+  rede: "facebook",
+  nome: "Facebook",
+  variaveis: ["META_PAGE_TOKEN"],
+  async conferir(post) {
+    return [
+      `Texto: ${textoDe(post, "facebook")}`,
+      "Cartão: montado pelo Facebook a partir das metatags da página",
+    ];
+  },
+  async entrar() {
+    const { facebook } = await meta.entrarNaMeta({
+      token: env("META_PAGE_TOKEN"),
+    });
+    return {
+      jaPublicado: (_post, link) => facebook.publicacaoDoLink(link),
+      publicar: (post, link) =>
+        facebook.publicar({ texto: textoDe(post, "facebook"), link }),
+      apagar: (id) => facebook.apagar(id),
+    };
+  },
+};
+
+/** Imagem vertical publicada pelo build em `public/og/instagram/`. */
+const imagemDoInstagram = (post: PostSocial, link: string) =>
+  `${new URL(link).origin}/og/instagram/${post.slug}.jpg`;
+
+const destinoInstagram: Destino = {
+  rede: "instagram",
+  nome: "Instagram",
+  variaveis: ["META_PAGE_TOKEN"],
+  async conferir(post) {
+    const legenda = textoDe(post, "instagram");
+    if (legenda.length > meta.LIMITE_DA_LEGENDA)
+      throw new Error(
+        `Legenda com mais de ${meta.LIMITE_DA_LEGENDA} caracteres.`,
+      );
+    const hashtags = meta.contarHashtags(legenda);
+    if (hashtags > meta.LIMITE_DE_HASHTAGS)
+      throw new Error(`Mais de ${meta.LIMITE_DE_HASHTAGS} hashtags.`);
+    const imagem = await imagemVerticalDoPost(post);
+    if (imagem.byteLength > 8_000_000)
+      throw new Error("Imagem maior que 8 MB.");
+    return [
+      `Legenda (${legenda.length}/${meta.LIMITE_DA_LEGENDA}, ${hashtags} hashtags): ${legenda}`,
+      `Imagem: 1080×1350 JPEG, ${Math.round(imagem.byteLength / 1024)} KB`,
+    ];
+  },
+  async entrar() {
+    const { instagram } = await meta.entrarNaMeta({
+      token: env("META_PAGE_TOKEN"),
+    });
+    return {
+      jaPublicado: (post) =>
+        instagram.publicacaoDaLegenda(textoDe(post, "instagram")),
+      async publicar(post, link) {
+        const imagem = imagemDoInstagram(post, link);
+        // O Instagram baixa a imagem pelo endereço: ela precisa estar no ar
+        const resposta = await fetch(imagem, { method: "HEAD" });
+        if (!resposta.ok)
+          throw new Error(`A imagem ${imagem} respondeu ${resposta.status}.`);
+        return instagram.publicar({
+          legenda: textoDe(post, "instagram"),
+          imagem,
+        });
+      },
+    };
+  },
+};
+
+export const DESTINOS: Destino[] = [
+  destinoBluesky,
+  destinoThreads,
+  destinoFacebook,
+  destinoInstagram,
+];
