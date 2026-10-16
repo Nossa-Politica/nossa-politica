@@ -12,7 +12,7 @@ on:
         type: boolean
         default: true
       refazer:
-        description: Slug de um post já publicado para apagar e publicar de novo (opcional)
+        description: Slug de um post já publicado para apagar e publicar de novo em todas as redes (opcional)
         type: string
         default: ""
 
@@ -54,10 +54,12 @@ jobs:
             git init --quiet --initial-branch social .social
           fi
 
-      - name: Publicar no Bluesky
+      # Uma rede sem credenciais é pulada com um aviso
+      - name: Publicar nas redes
         env:
           BLUESKY_HANDLE: ${{ vars.BLUESKY_HANDLE }}
           BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
+          THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
         run: |
           pnpm social:publicar --log .social/social-log.json \
             $([ "$SIMULACAO" = "true" ] && echo --dry-run) \
