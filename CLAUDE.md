@@ -57,9 +57,12 @@ Site de transparência política: qualquer pessoa encontra um deputado ou senado
 ## Redes sociais
 
 - Depois de cada deploy de produção, o workflow `Redes sociais` roda `scripts/social/publish.ts`: publica os posts novos que têm texto em `social.<rede>`, com o cartão do link (título, resumo e a mesma imagem do site). Só entram posts dos últimos 14 dias, para que uma rede nova não receba o blog inteiro.
-- Redes ligadas: Bluesky (API oficial, com `BLUESKY_HANDLE` em variáveis do repositório e `BLUESKY_APP_PASSWORD` em secrets). Use sempre as APIs oficiais, nunca automação por navegador.
+- Redes ligadas (`scripts/social/redes.ts`), sempre pelas APIs oficiais, nunca por automação de navegador:
+  - **Bluesky:** `BLUESKY_HANDLE` em variáveis do repositório e `BLUESKY_APP_PASSWORD` em secrets. O post leva o cartão do link com a imagem enviada pelo script.
+  - **Threads:** `THREADS_ACCESS_TOKEN` em secrets (token de 60 dias de um app da Meta em modo de desenvolvimento, com o perfil como testador). O post é um texto com o link anexado, e o Threads monta o cartão pelas metatags da página. O workflow `Tokens das redes` renova o token toda segunda e grava o novo com o secret `TOKEN_SECRETS` (token pessoal do GitHub com permissão só de escrever secrets deste repositório).
+- Uma rede sem credenciais é pulada com um aviso. Depois de configurar as credenciais, os posts dos últimos 14 dias saem no próximo merge ou ao disparar o workflow à mão (o deploy diário do ETL não dispara a publicação).
 - O que já saiu fica no registro `social-log.json`, na branch `social` (a `main` é protegida e o workflow não grava nela). Antes de publicar, o script também procura na conta um post com o mesmo link, para nunca repetir.
-- Para corrigir um post já publicado (o Bluesky não permite editar), dispare o workflow à mão com o slug em "refazer": o post antigo é apagado e publicado de novo.
+- Para corrigir um post já publicado (as redes não permitem editar pela API), dispare o workflow à mão com o slug em "refazer": o post antigo é apagado e publicado de novo em cada rede onde saiu.
 - O CI roda `pnpm social:publicar --dry-run` em todo PR: confere texto, limites e imagem sem publicar. Para simular com o registro real, dispare o workflow à mão (a opção "Só simular" já vem marcada).
 
 ## Comandos

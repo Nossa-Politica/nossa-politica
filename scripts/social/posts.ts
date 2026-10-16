@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { Registro } from "./registro";
 
-export const REDES = ["bluesky"] as const;
+export const REDES = ["bluesky", "threads"] as const;
 export type Rede = (typeof REDES)[number];
 
 /**
