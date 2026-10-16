@@ -133,6 +133,24 @@ describe("entrarNoBluesky", () => {
     expect(await conta.publicacaoDoLink("https://site/blog/y")).toBeUndefined();
   });
 
+  it("apaga um post pelo rkey", async () => {
+    const { buscar, chamadas } = servidorFalso({
+      "com.atproto.server.createSession": sessao,
+      "com.atproto.repo.deleteRecord": {},
+    });
+    const conta = await entrarNoBluesky({
+      handle: "teste",
+      senhaDeApp: "senha",
+      fetch: buscar,
+    });
+    await conta.apagar("at://did:plc:abc/app.bsky.feed.post/3k");
+    expect(JSON.parse(String(chamadas[1].init?.body))).toEqual({
+      repo: "did:plc:abc",
+      collection: "app.bsky.feed.post",
+      rkey: "3k",
+    });
+  });
+
   it("falha com uma mensagem clara quando o login é recusado", async () => {
     const { buscar } = servidorFalso({});
     await expect(

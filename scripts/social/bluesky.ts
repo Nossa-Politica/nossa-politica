@@ -210,5 +210,20 @@ export async function entrarNoBluesky({
       );
       return criado.uri;
     },
+
+    /** Apaga um post da conta (o Bluesky não permite editar). */
+    async apagar(uri: string) {
+      const rkey = uri.split("/").pop();
+      await xrpc("com.atproto.repo.deleteRecord", z.unknown(), {
+        method: "POST",
+        token,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          repo: sessao.did,
+          collection: "app.bsky.feed.post",
+          rkey,
+        }),
+      });
+    },
   };
 }

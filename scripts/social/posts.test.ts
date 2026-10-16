@@ -49,6 +49,17 @@ describe("pendentes", () => {
     );
     expect(fila.map((p) => p.slug)).toEqual(["b", "c"]);
   });
+
+  it("aceita um post antigo quando ele vai ser refeito", () => {
+    const fila = pendentes(
+      [post({ slug: "antigo", data: "2026-09-01T00:00:00.000Z" })],
+      {},
+      "bluesky",
+      "2026-10-16",
+      "antigo",
+    );
+    expect(fila.map((p) => p.slug)).toEqual(["antigo"]);
+  });
 });
 
 describe("hoje", () => {

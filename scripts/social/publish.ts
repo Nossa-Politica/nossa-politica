@@ -5,6 +5,7 @@
  *
  *   pnpm social:publicar --dry-run            # mostra o que sairia, sem publicar
  *   pnpm social:publicar --log caminho.json   # registro (padrão: .social/social-log.json)
+ *   pnpm social:publicar --refazer slug       # apaga o post da rede e publica de novo
  *
  * Precisa de `.velite/` (rode `pnpm exec velite build` antes) e, fora do
  * dry-run, de BLUESKY_HANDLE e BLUESKY_APP_PASSWORD no ambiente.
@@ -28,6 +29,7 @@ const { values: opcoes } = parseArgs({
   options: {
     "dry-run": { type: "boolean", default: false },
     log: { type: "string", default: ".social/social-log.json" },
+    refazer: { type: "string" },
   },
 });
 const simulacao = opcoes["dry-run"];
@@ -50,7 +52,28 @@ async function main() {
     .array(PostSocial)
     .parse(JSON.parse(await readFile(".velite/posts.json", "utf8")));
   const registro = await lerRegistro(opcoes.log);
-  const fila = pendentes(posts, registro, "bluesky", hoje());
+
+  // Para corrigir um post já publicado (texto ou link errado): o Bluesky não
+  // permite editar, então o antigo é apagado e o post volta para a fila
+  const refazer = opcoes.refazer && registro.bluesky?.[opcoes.refazer];
+  if (opcoes.refazer && !refazer)
+    throw new Error(`O registro não tem ${opcoes.refazer} no Bluesky.`);
+  if (refazer && opcoes.refazer) {
+    if (simulacao) {
+      console.log(`Bluesky: ${refazer.url} seria apagado e publicado de novo.`);
+    } else {
+      const conta = await entrarNoBluesky({
+        handle: exigir("BLUESKY_HANDLE").replace(/^@/, ""),
+        senhaDeApp: exigir("BLUESKY_APP_PASSWORD"),
+      });
+      await conta.apagar(refazer.id);
+      console.log(`Apagado: ${refazer.url}`);
+    }
+    delete registro.bluesky?.[opcoes.refazer];
+    if (!simulacao) await salvarRegistro(opcoes.log, registro);
+  }
+
+  const fila = pendentes(posts, registro, "bluesky", hoje(), opcoes.refazer);
 
   if (fila.length === 0) {
     console.log("Bluesky: nenhum post novo.");

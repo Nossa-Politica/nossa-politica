@@ -4,7 +4,13 @@
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-10-01",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  // O endereço workers.dev continua ativo (os previews dependem dele), mas
+  // redireciona para o domínio próprio (veja `next.config.ts`)
   "workers_dev": true,
+  "routes": [
+    { "pattern": "nossapolitica.com.br", "custom_domain": true },
+    { "pattern": "www.nossapolitica.com.br", "custom_domain": true }
+  ],
   // Gera uma URL própria para cada versão enviada (preview dos PRs)
   "preview_urls": true,
   "assets": {
