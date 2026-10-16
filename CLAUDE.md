@@ -55,7 +55,7 @@ Site de transparência política: qualquer pessoa encontra um deputado ou senado
   - `<Destaque>`, `<Fonte nome="..." url="..." />` e `<TermoGlossario chave="cota">`.
 - **Prefira os componentes que leem dados a números digitados**: o post se atualiza sozinho e não fica com número errado. Todo número digitado precisa de `<Fonte>`.
 - Os mesmos princípios do site valem para os posts: neutralidade, sem adjetivos sobre parlamentares, o mesmo critério para todos, linguagem simples.
-- A imagem de compartilhamento (`public/og/blog/<slug>.png`) é gerada no build por `scripts/og/gerar.tsx`.
+- A imagem de compartilhamento (`public/og/blog/<slug>.png`) e a vertical do Instagram (`public/og/instagram/<slug>.jpg`) são geradas no build por `scripts/og/gerar.tsx`.
 
 ## Redes sociais
 
@@ -63,6 +63,7 @@ Site de transparência política: qualquer pessoa encontra um deputado ou senado
 - Redes ligadas (`scripts/social/redes.ts`), sempre pelas APIs oficiais, nunca por automação de navegador:
   - **Bluesky:** `BLUESKY_HANDLE` em variáveis do repositório e `BLUESKY_APP_PASSWORD` em secrets. O post leva o cartão do link com a imagem enviada pelo script.
   - **Threads:** `THREADS_ACCESS_TOKEN` em secrets (token de 60 dias de um app da Meta em modo de desenvolvimento, com o perfil como testador). O post é um texto com o link anexado, e o Threads monta o cartão pelas metatags da página. O workflow `Tokens das redes` renova o token toda segunda e grava o novo com o secret `TOKEN_SECRETS` (token pessoal do GitHub com permissão só de escrever secrets deste repositório).
+  - **Facebook e Instagram:** `META_PAGE_TOKEN` em secrets, um token da Página do Facebook gerado a partir de um token de longa duração (não vence). O Instagram é a conta profissional vinculada à Página. No Facebook, o post é texto com o link. No Instagram, é a imagem vertical `public/og/instagram/<slug>.jpg` (1080×1350, JPEG, gerada no build) com a legenda, que não tem link clicável ("Link na bio"). A API do Instagram não apaga posts: no "refazer", apague o post à mão no app antes. O workflow `Tokens das redes` confere o token toda segunda.
 - Uma rede sem credenciais é pulada com um aviso. Depois de configurar as credenciais, os posts dos últimos 14 dias saem no próximo merge ou ao disparar o workflow à mão (o deploy diário do ETL não dispara a publicação).
 - O que já saiu fica no registro `social-log.json`, na branch `social` (a `main` é protegida e o workflow não grava nela). Antes de publicar, o script também procura na conta um post com o mesmo link, para nunca repetir.
 - Para corrigir um post já publicado (as redes não permitem editar pela API), dispare o workflow à mão com o slug em "refazer": o post antigo é apagado e publicado de novo em cada rede onde saiu.

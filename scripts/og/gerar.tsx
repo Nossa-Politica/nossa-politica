@@ -7,7 +7,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { z } from "zod";
-import { gerarImagem, imagemDoPost } from "./imagem";
+import { gerarImagem, imagemDoPost, imagemVerticalDoPost } from "./imagem";
 
 const PASTA = join(process.cwd(), "public/og");
 
@@ -22,6 +22,7 @@ const Posts = z.array(
 
 async function main() {
   await mkdir(join(PASTA, "blog"), { recursive: true });
+  await mkdir(join(PASTA, "instagram"), { recursive: true });
 
   await writeFile(
     join(PASTA, "padrao.png"),
@@ -40,6 +41,11 @@ async function main() {
     await writeFile(
       join(PASTA, "blog", `${post.slug}.png`),
       await imagemDoPost(post),
+    );
+    // Versão vertical, publicada no Instagram (que busca a imagem pelo link)
+    await writeFile(
+      join(PASTA, "instagram", `${post.slug}.jpg`),
+      await imagemVerticalDoPost(post),
     );
   }
   console.log(`Imagens de compartilhamento: padrão e ${posts.length} post(s).`);
