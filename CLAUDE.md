@@ -15,7 +15,8 @@ Site de transparência política: qualquer pessoa encontra um deputado ou senado
 - `src/components/ui/` é gerado pelo shadcn (`pnpm dlx shadcn@latest add <componente>`). Evite editar à mão; o Biome ignora essa pasta.
 - O `next` está fixado em `16.3.8` porque o `@opennextjs/cloudflare` ainda quebra com o Next 16.4 ([issue #1355](https://github.com/opennextjs/opennextjs-cloudflare/issues/1355)). Só atualize depois que a correção sair e o `pnpm preview` funcionar.
 - Depois de mudar `wrangler.jsonc`, rode `pnpm cf-typegen` e faça commit do `cloudflare-env.d.ts`.
-- Toda mudança no cálculo de um indicador do ETL atualiza `docs/METODOLOGIA.md` no mesmo PR.
+- Toda mudança no cálculo de um indicador do ETL atualiza `docs/METODOLOGIA.md` no mesmo PR. Esse arquivo é publicado no site como `/metodologia` (via Velite): escreva para o público e evite caminhos de código.
+- O repositório é privado e o projeto é anônimo: nenhum nome pessoal no site, nos posts ou nos metadados, e nenhum link para o GitHub nas páginas.
 - A pasta `dados/` é gerada pelo ETL e publicada na branch `dados`; nunca faça commit dela na `main`.
 
 ## Stack
@@ -23,7 +24,7 @@ Site de transparência política: qualquer pessoa encontra um deputado ou senado
 - Next.js (App Router), TypeScript, Tailwind CSS v4 e shadcn/ui, com pnpm.
 - Domínio: `nossapolitica.com.br` (Custom Domain do Worker em `wrangler.jsonc`, DNS na Cloudflare). `www` e o endereço antigo `*.workers.dev` redirecionam para ele (`next.config.ts`); o `workers.dev` continua ligado porque os previews dos PRs dependem dele.
 - Cloudflare Workers via `@opennextjs/cloudflare`. As páginas são geradas no build (uma por político) e o cache de páginas fica nos arquivos estáticos do deploy (`static-assets` em `open-next.config.ts`): não há regeneração entre deploys. O bucket R2 `nossa-politica-cache` existe na conta, mas não está em uso.
-- Páginas: `/` (busca), `/politicos/[slug]`, `/explorar` e `/comparar` (no navegador, a partir de `/api/indicadores`), `/votacoes` e `/votacoes/[casa]/[id]`, `/estados` e `/estados/[uf]`. Tudo gerado no build (~5.400 páginas).
+- Páginas: `/` (busca), `/politicos/[slug]`, `/explorar` e `/comparar` (no navegador, a partir de `/api/indicadores`), `/votacoes` e `/votacoes/[casa]/[id]`, `/estados` e `/estados/[uf]`, `/metodologia` (gerada de `docs/METODOLOGIA.md`). Tudo gerado no build (~5.400 páginas).
 - O site lê `dados/` só no build (`src/lib/dados.ts`, com os esquemas de `etl/`, importados por `@etl/*`). Para rodar com dados localmente: `pnpm dados:baixar`.
 - Biome (lint e formatação), Vitest (unitários) e Playwright (E2E).
 - GitHub Actions para CI, preview, deploy e ETL.
@@ -37,7 +38,7 @@ Site de transparência política: qualquer pessoa encontra um deputado ou senado
 - Resultados intermediários que não precisam ser refeitos todo dia ficam em `_parciais/`: anos da Câmara (só o atual e o anterior são reprocessados) e eleições do TSE. Aos domingos, a Câmara reprocessa todos os anos e o TSE refaz a eleição mais recente.
 - **Compatibilidade:** o deploy valida os dados já publicados antes da próxima carga rodar. Campo novo num formato de saída entra como opcional, e uma fonte nova só é exigida pelo `etl:validar` depois de aparecer em `fontes.json`.
 - Os testes usam respostas gravadas das APIs e amostras reais dos arquivos (pastas `__fixtures__/`), com CPFs e nomes de pessoas físicas trocados por valores fictícios.
-- **Nunca** coloque CPF ou nome de pessoa física real (fornecedor, doador, passageiro) em fixtures: o repositório é público.
+- **Nunca** coloque CPF ou nome de pessoa física real (fornecedor, doador, passageiro) em fixtures: mesmo com o repositório privado, os dados podem acabar publicados.
 
 ## Blog
 
@@ -84,7 +85,7 @@ Site de transparência política: qualquer pessoa encontra um deputado ou senado
 | `pnpm etl:pessoas` | Lista de pessoas (`dados/pessoas.json`): junta Câmara e Senado da mesma pessoa e define os endereços `/politicos/[slug]` |
 | `pnpm conteudo` | Velite em modo observação: recompila os posts enquanto você edita (use junto com `pnpm dev`) |
 | `pnpm social:publicar --dry-run` | Mostra o que sairia nas redes (precisa de `pnpm exec velite build` antes). Sem `--dry-run`, publica de verdade: só o workflow faz isso |
-| `pnpm dados:baixar` | Baixa a branch `dados` para `./dados`, para rodar o site com dados localmente |
+| `pnpm dados:baixar` | Baixa a branch `dados` para `./dados`, para rodar o site com dados localmente (usa o login do `gh`, porque o repositório é privado) |
 | `pnpm etl:emendas` | Emendas do Portal da Transparência (~10 s; precisa de Câmara e Senado em `./dados`) |
 | `pnpm etl:tse` | Eleições do TSE: só as que faltam. `--recente` refaz a mais recente; `--completo`, todas (~5 min, ~2 GB de downloads) |
 | `pnpm etl:validar [pasta]` | Valida os arquivos de dados (formato e limites de bom senso) |

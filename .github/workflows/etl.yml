@@ -35,7 +35,7 @@ jobs:
 
       - name: Baixar a carga anterior (branch dados)
         env:
-          REPO: https://github.com/${{ github.repository }}.git
+          REPO: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git
         run: |
           if git ls-remote --exit-code --heads "$REPO" dados > /dev/null; then
             git clone --quiet --depth 1 --branch dados "$REPO" dados

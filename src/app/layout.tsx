@@ -69,14 +69,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               do TSE. Site independente e sem vínculo com partidos.
             </p>
             <p>
-              <a
-                href="https://github.com/guilhermemcardoso/nossa-politica"
+              <Link
+                href="/metodologia"
                 className="underline underline-offset-2"
-                target="_blank"
-                rel="noopener"
               >
-                Código aberto
-              </a>
+                Como calculamos cada número
+              </Link>
             </p>
           </div>
         </footer>
