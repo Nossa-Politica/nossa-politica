@@ -23,7 +23,7 @@
     "etl:emendas": "tsx etl/emendas/index.ts",
     "etl:tse": "tsx etl/tse/index.ts",
     "etl:pessoas": "tsx etl/pessoas/index.ts",
-    "dados:baixar": "rm -rf dados && gh repo clone guilhermemcardoso/nossa-politica dados -- --quiet --depth 1 --branch dados && rm -rf dados/.git",
+    "dados:baixar": "rm -rf dados && git clone --quiet --depth 1 --branch dados https://github.com/Nossa-Politica/nossa-politica.git dados && rm -rf dados/.git",
     "conteudo": "velite dev",
     "social:publicar": "tsx scripts/social/publish.ts"
   },
