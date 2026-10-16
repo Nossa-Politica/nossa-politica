@@ -5,17 +5,6 @@ import { defineCollection, defineConfig, s } from "velite";
  * para `.velite/` antes do build do Next.js. Um post é um arquivo MDX.
  */
 
-const autores = defineCollection({
-  name: "Autor",
-  pattern: "autores/*.yml",
-  schema: s.object({
-    slug: s.slug("autores"),
-    nome: s.string(),
-    bio: s.string(),
-    url: s.string().url().optional(),
-  }),
-});
-
 const posts = defineCollection({
   name: "Post",
   pattern: "blog/**/*.mdx",
@@ -25,7 +14,6 @@ const posts = defineCollection({
       slug: s.slug("posts"),
       data: s.isodate(),
       resumo: s.string().max(280),
-      autor: s.string(),
       tags: s.array(s.string()).default([]),
       /** Rascunhos não aparecem no site nem no RSS */
       rascunho: s.boolean().default(false),
@@ -52,5 +40,5 @@ export default defineConfig({
     base: "/static/",
     clean: true,
   },
-  collections: { autores, posts },
+  collections: { posts },
 });

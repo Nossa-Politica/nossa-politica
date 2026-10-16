@@ -41,8 +41,9 @@ Site de transparência política: qualquer pessoa encontra um deputado ou senado
 
 ## Blog
 
+- Os posts não têm autor: o projeto é anônimo, e nenhum nome pessoal entra no site, nos metadados ou no RSS.
 - Um post é um arquivo `content/blog/<slug>.mdx`. O Velite valida e compila (`velite.config.ts`) antes do build; o build falha se o frontmatter estiver errado.
-- Frontmatter: `titulo` (até 120 caracteres), `slug`, `data` (AAAA-MM-DD), `resumo` (até 280), `autor` (slug em `content/autores/*.yml`), `tags`, `rascunho` (true esconde o post) e `social` (texto de cada rede: `bluesky` até 300 caracteres, `threads` até 500, `facebook`, `instagram` até 2.200), usado na publicação automática.
+- Frontmatter: `titulo` (até 120 caracteres), `slug`, `data` (AAAA-MM-DD), `resumo` (até 280), `tags`, `rascunho` (true esconde o post) e `social` (texto de cada rede: `bluesky` até 300 caracteres, `threads` até 500, `facebook`, `instagram` até 2.200), usado na publicação automática.
 - Componentes disponíveis no MDX (`src/components/blog/componentes-mdx.tsx`):
   - `<Mediana casa="camara" indicador="presenca" />`: mediana da legislatura atual, lida dos dados no build. Indicadores: `presenca`, `primeiroAutor`, `viraramNorma`, `gastoMensal`.
   - `<Numero slug="nome-do-politico" indicador="gastoMensal" />`: valor de um parlamentar (os mesmos indicadores do Explorar).

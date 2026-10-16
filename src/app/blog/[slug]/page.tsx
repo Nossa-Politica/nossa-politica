@@ -3,12 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ConteudoMdx } from "@/components/blog/conteudo-mdx";
 import { Compartilhar } from "@/components/perfil/compartilhar";
-import {
-  autorPorSlug,
-  minutosDeLeitura,
-  postPorSlug,
-  postsPublicados,
-} from "@/lib/blog";
+import { minutosDeLeitura, postPorSlug, postsPublicados } from "@/lib/blog";
 import { formatarData } from "@/lib/formatar";
 
 export const dynamicParams = false;
@@ -27,7 +22,6 @@ export async function generateMetadata({
   return {
     title: `${post.titulo} · Nossa Política`,
     description: post.resumo,
-    authors: [{ name: autorPorSlug(post.autor).nome }],
     openGraph: {
       type: "article",
       title: post.titulo,
@@ -45,7 +39,6 @@ export default async function PaginaPost({
   const { slug } = await params;
   const post = postPorSlug(slug);
   if (!post) notFound();
-  const autor = autorPorSlug(post.autor);
 
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-8">
@@ -62,15 +55,6 @@ export default async function PaginaPost({
             {post.titulo}
           </h1>
           <p className="text-lg text-muted-foreground">{post.resumo}</p>
-          <p className="text-sm">
-            Por{" "}
-            <Link
-              href={`/blog/autores/${autor.slug}`}
-              className="underline underline-offset-2"
-            >
-              {autor.nome}
-            </Link>
-          </p>
         </header>
         <div className="text-[1.0625rem]">
           <ConteudoMdx codigo={post.corpo} />
