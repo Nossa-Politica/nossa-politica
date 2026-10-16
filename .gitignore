@@ -32,3 +32,6 @@ coverage/
 /.velite/
 /public/static/
 /public/og/
+
+# registro das publicações nas redes (fica na branch `social`)
+/.social/

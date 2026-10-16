@@ -24,6 +24,9 @@ jobs:
         run: pnpm typecheck
       - name: Testes unitários (Vitest)
         run: pnpm test
+      # Confere texto, limites e imagem dos posts que sairiam nas redes
+      - name: Redes sociais (simulação)
+        run: pnpm social:publicar --dry-run
       # As páginas dos políticos são geradas a partir da branch `dados`
       - uses: ./.github/actions/dados
       - name: Build do Worker (OpenNext)

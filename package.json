@@ -24,7 +24,8 @@
     "etl:tse": "tsx etl/tse/index.ts",
     "etl:pessoas": "tsx etl/pessoas/index.ts",
     "dados:baixar": "rm -rf dados && git clone --quiet --depth 1 --branch dados https://github.com/guilhermemcardoso/nossa-politica.git dados && rm -rf dados/.git",
-    "conteudo": "velite dev"
+    "conteudo": "velite dev",
+    "social:publicar": "tsx scripts/social/publish.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
