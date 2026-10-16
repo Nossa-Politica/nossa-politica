@@ -5,6 +5,11 @@ on:
   schedule:
     - cron: "0 10 * * 1"
   workflow_dispatch:
+    inputs:
+      so_conferir:
+        description: Só conferir o acesso do TOKEN_SECRETS, sem renovar
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -31,6 +36,13 @@ jobs:
             echo "::error::Falta o secret TOKEN_SECRETS para gravar o token renovado."
             exit 1
           fi
+          # Falha cedo se o token pessoal venceu ou perdeu o acesso ao repositório
+          if ! gh secret list --repo "${{ github.repository }}" > /dev/null; then
+            echo "::error::TOKEN_SECRETS sem acesso aos secrets do repositório (vencido ou criado para outro dono)."
+            exit 1
+          fi
+          echo "TOKEN_SECRETS com acesso aos secrets do repositório."
+          if [ "${{ inputs.so_conferir }}" = "true" ]; then exit 0; fi
           echo "RENOVAR=true" >> "$GITHUB_ENV"
       # Se falhar, o GitHub avisa por e-mail; o token antigo segue valendo até vencer
       - name: Renovar o token do Threads
