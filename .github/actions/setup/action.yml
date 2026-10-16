@@ -3,7 +3,8 @@ description: Instala Node, pnpm e as dependências do projeto
 runs:
   using: composite
   steps:
-    - uses: pnpm/action-setup@v6
+    # Ação de terceiros fixada pelo commit (v6), para uma tag movida não trocar o código
+    - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86
     - uses: actions/setup-node@v7
       with:
         node-version-file: .nvmrc

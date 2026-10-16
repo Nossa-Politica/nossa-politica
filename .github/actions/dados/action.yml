@@ -5,7 +5,6 @@ runs:
   steps:
     - shell: bash
       env:
-        # O repositório é privado: o clone usa o token do próprio workflow
         REPO: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git
       run: |
         if git ls-remote --exit-code --heads "$REPO" dados > /dev/null; then
