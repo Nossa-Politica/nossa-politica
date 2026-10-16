@@ -1,4 +1,4 @@
-import { autorPorSlug, postsPublicados, URL_DO_SITE } from "@/lib/blog";
+import { postsPublicados, URL_DO_SITE } from "@/lib/blog";
 
 // Gerado no build como arquivo estático
 export const dynamic = "force-static";
@@ -20,14 +20,13 @@ export function GET() {
       <link>${url}</link>
       <guid isPermaLink="true">${url}</guid>
       <pubDate>${new Date(`${post.data.slice(0, 10)}T12:00:00-03:00`).toUTCString()}</pubDate>
-      <dc:creator>${escapar(autorPorSlug(post.autor).nome)}</dc:creator>
       <description>${escapar(post.resumo)}</description>
     </item>`;
     })
     .join("\n");
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Nossa Política</title>
     <link>${URL_DO_SITE}/blog</link>

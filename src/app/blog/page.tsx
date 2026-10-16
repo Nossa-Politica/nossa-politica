@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { autorPorSlug, minutosDeLeitura, postsPublicados } from "@/lib/blog";
+import { minutosDeLeitura, postsPublicados } from "@/lib/blog";
 import { formatarData } from "@/lib/formatar";
 
 export const metadata: Metadata = {
@@ -38,8 +38,8 @@ export default function PaginaBlog() {
                 className="flex flex-col gap-1 hover:opacity-80"
               >
                 <span className="text-sm text-muted-foreground">
-                  {formatarData(post.data)} · {autorPorSlug(post.autor).nome} ·{" "}
-                  {minutosDeLeitura(post)} min de leitura
+                  {formatarData(post.data)} · {minutosDeLeitura(post)} min de
+                  leitura
                 </span>
                 <span className="font-heading text-xl font-semibold">
                   {post.titulo}

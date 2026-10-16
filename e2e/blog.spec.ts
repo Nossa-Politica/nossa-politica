@@ -15,9 +15,6 @@ test("blog lista os posts e abre um post com dados do build", async ({
   await expect(
     page.getByText(/presença mediana dos deputados .* é de \d+,?\d*%/),
   ).toBeVisible();
-  await expect(
-    page.getByRole("link", { name: "Guilherme Muniz Cardoso" }),
-  ).toBeVisible();
 });
 
 test("RSS e imagem de compartilhamento estão publicados", async ({
