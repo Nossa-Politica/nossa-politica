@@ -1,6 +1,6 @@
 # Metodologia
 
-Como cada número do site é calculado a partir dos dados oficiais. Toda regra vale igualmente para todos os parlamentares. O código está em `etl/` (uma pasta por fonte, mais `etl/comum/` com o que Câmara e Senado compartilham).
+Como cada número do site é calculado a partir dos dados oficiais. Toda regra vale igualmente para todos os parlamentares.
 
 - [Câmara dos Deputados](#câmara-dos-deputados)
 - [Senado Federal](#senado-federal)

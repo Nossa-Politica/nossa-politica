@@ -32,7 +32,8 @@ jobs:
        github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
     env:
-      REPO: https://github.com/${{ github.repository }}.git
+      # O repositório é privado: o clone usa o token do próprio workflow
+      REPO: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git
       SIMULACAO: ${{ inputs.dry_run }}
       REFAZER: ${{ inputs.refazer }}
     steps:

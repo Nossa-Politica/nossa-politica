@@ -1,3 +1,4 @@
+import rehypeSlug from "rehype-slug";
 import { defineCollection, defineConfig, s } from "velite";
 
 /*
@@ -32,6 +33,17 @@ const posts = defineCollection({
     .transform((post) => ({ ...post, url: `/blog/${post.slug}` })),
 });
 
+/**
+ * A metodologia continua em `docs/METODOLOGIA.md` (é também documentação do
+ * ETL) e vira a página `/metodologia` no build.
+ */
+const metodologia = defineCollection({
+  name: "Metodologia",
+  pattern: "../docs/METODOLOGIA.md",
+  single: true,
+  schema: s.object({ conteudo: s.markdown() }),
+});
+
 export default defineConfig({
   root: "content",
   output: {
@@ -40,5 +52,6 @@ export default defineConfig({
     base: "/static/",
     clean: true,
   },
-  collections: { posts },
+  collections: { posts, metodologia },
+  markdown: { rehypePlugins: [rehypeSlug] },
 });

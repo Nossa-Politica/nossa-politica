@@ -65,3 +65,12 @@ test("página do estado mostra a bancada e as emendas recebidas", async ({
     page.getByRole("heading", { name: /enviadas para o Acre/ }),
   ).toBeVisible();
 });
+
+test("metodologia é publicada no site", async ({ page }) => {
+  await page.goto("/metodologia");
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Metodologia" }),
+  ).toBeVisible();
+  await page.getByRole("link", { name: "Senado Federal" }).first().click();
+  await expect(page).toHaveURL(/#senado-federal$/);
+});

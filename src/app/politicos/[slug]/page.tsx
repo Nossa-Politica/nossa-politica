@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BlocoEleicoes } from "@/components/perfil/bloco-eleicoes";
 import { BlocoEmendas } from "@/components/perfil/bloco-emendas";
@@ -142,14 +143,9 @@ export default async function PaginaPolitico({
 
       <p className="border-t pt-6 text-xs text-muted-foreground">
         Como calculamos cada número:{" "}
-        <a
-          href="https://github.com/guilhermemcardoso/nossa-politica/blob/main/docs/METODOLOGIA.md"
-          className="underline underline-offset-2"
-          target="_blank"
-          rel="noopener"
-        >
+        <Link href="/metodologia" className="underline underline-offset-2">
           metodologia
-        </a>
+        </Link>
         . Todos os parlamentares são avaliados pelos mesmos critérios.
       </p>
     </main>
