@@ -1,5 +1,6 @@
 import { imagemDoPost, imagemVerticalDoPost } from "../og/imagem";
 import * as bluesky from "./bluesky";
+import * as instagram from "./instagram";
 import * as meta from "./meta";
 import type { PostSocial, Rede } from "./posts";
 import * as threads from "./threads";
@@ -148,38 +149,38 @@ const imagemDoInstagram = (post: PostSocial, link: string) =>
 const destinoInstagram: Destino = {
   rede: "instagram",
   nome: "Instagram",
-  variaveis: ["META_PAGE_TOKEN"],
+  variaveis: ["INSTAGRAM_ACCESS_TOKEN"],
   async conferir(post) {
     const legenda = textoDe(post, "instagram");
-    if (legenda.length > meta.LIMITE_DA_LEGENDA)
+    if (legenda.length > instagram.LIMITE_DA_LEGENDA)
       throw new Error(
-        `Legenda com mais de ${meta.LIMITE_DA_LEGENDA} caracteres.`,
+        `Legenda com mais de ${instagram.LIMITE_DA_LEGENDA} caracteres.`,
       );
-    const hashtags = meta.contarHashtags(legenda);
-    if (hashtags > meta.LIMITE_DE_HASHTAGS)
-      throw new Error(`Mais de ${meta.LIMITE_DE_HASHTAGS} hashtags.`);
+    const hashtags = instagram.contarHashtags(legenda);
+    if (hashtags > instagram.LIMITE_DE_HASHTAGS)
+      throw new Error(`Mais de ${instagram.LIMITE_DE_HASHTAGS} hashtags.`);
     const imagem = await imagemVerticalDoPost(post);
     if (imagem.byteLength > 8_000_000)
       throw new Error("Imagem maior que 8 MB.");
     return [
-      `Legenda (${legenda.length}/${meta.LIMITE_DA_LEGENDA}, ${hashtags} hashtags): ${legenda}`,
+      `Legenda (${legenda.length}/${instagram.LIMITE_DA_LEGENDA}, ${hashtags} hashtags): ${legenda}`,
       `Imagem: 1080×1350 JPEG, ${Math.round(imagem.byteLength / 1024)} KB`,
     ];
   },
   async entrar() {
-    const { instagram } = await meta.entrarNaMeta({
-      token: env("META_PAGE_TOKEN"),
+    const conta = await instagram.entrarNoInstagram({
+      token: env("INSTAGRAM_ACCESS_TOKEN"),
     });
     return {
       jaPublicado: (post) =>
-        instagram.publicacaoDaLegenda(textoDe(post, "instagram")),
+        conta.publicacaoDaLegenda(textoDe(post, "instagram")),
       async publicar(post, link) {
         const imagem = imagemDoInstagram(post, link);
         // O Instagram baixa a imagem pelo endereço: ela precisa estar no ar
         const resposta = await fetch(imagem, { method: "HEAD" });
         if (!resposta.ok)
           throw new Error(`A imagem ${imagem} respondeu ${resposta.status}.`);
-        return instagram.publicar({
+        return conta.publicar({
           legenda: textoDe(post, "instagram"),
           imagem,
         });

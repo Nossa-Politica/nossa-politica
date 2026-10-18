@@ -1,39 +1,19 @@
 import { z } from "zod";
 
 /*
- * Cliente mínimo da Graph API da Meta para a Página do Facebook e o Instagram
- * ligado a ela. Um único token de Página, gerado a partir de um token de
- * longa duração, não vence e serve para as duas redes.
+ * Cliente mínimo da Graph API da Meta para a Página do Facebook. O token de
+ * Página, gerado a partir de um token de usuário de longa duração, não vence.
+ * (O Instagram usa a própria API, em `instagram.ts`, sem depender da Página.)
  */
 
-export const VERSAO = "v24.0";
+export const VERSAO = "v25.0";
 const API = `https://graph.facebook.com/${VERSAO}`;
-
-/** Limites do Instagram para a legenda. */
-export const LIMITE_DA_LEGENDA = 2200;
-export const LIMITE_DE_HASHTAGS = 30;
-
-export function contarHashtags(texto: string): number {
-  return texto.match(/(^|\s)#[\p{L}\p{N}_]+/gu)?.length ?? 0;
-}
 
 const Pagina = z.object({
   id: z.string(),
   name: z.string(),
-  instagram_business_account: z
-    .object({ id: z.string(), username: z.string().optional() })
-    .optional(),
 });
 const Id = z.object({ id: z.string() });
-const StatusDoConteiner = z.object({
-  status_code: z.enum([
-    "IN_PROGRESS",
-    "FINISHED",
-    "PUBLISHED",
-    "ERROR",
-    "EXPIRED",
-  ]),
-});
 const PostDaPagina = z.object({
   id: z.string(),
   permalink_url: z.string().optional(),
@@ -49,13 +29,6 @@ const PostDaPagina = z.object({
     .optional(),
 });
 const PostsDaPagina = z.object({ data: z.array(PostDaPagina) });
-const MidiaDoInstagram = z.object({
-  id: z.string(),
-  caption: z.string().optional(),
-  permalink: z.string().optional(),
-});
-const MidiasDoInstagram = z.object({ data: z.array(MidiaDoInstagram) });
-
 const semBarraFinal = (url: string) => url.replace(/\/+$/, "");
 
 export class ErroDaMeta extends Error {}
@@ -63,14 +36,11 @@ export class ErroDaMeta extends Error {}
 export interface OpcoesDoCliente {
   token: string;
   fetch?: typeof fetch;
-  /** Pausa entre as consultas ao contêiner do Instagram (os testes passam 0). */
-  esperaMs?: number;
 }
 
 export async function entrarNaMeta({
   token,
   fetch: buscar = fetch,
-  esperaMs = 5000,
 }: OpcoesDoCliente) {
   async function graph<T>(
     caminho: string,
@@ -99,7 +69,7 @@ export async function entrarNaMeta({
 
   // Com um token de Página, `me` é a própria Página
   const pagina = await graph("me", Pagina, {
-    params: { fields: "id,name,instagram_business_account{id,username}" },
+    params: { fields: "id,name" },
   });
 
   const facebook = {
@@ -140,67 +110,7 @@ export async function entrarNaMeta({
     },
   };
 
-  const idDoInstagram = pagina.instagram_business_account?.id;
-  const instagram = {
-    /** Procura nas mídias recentes uma com a mesma legenda. */
-    async publicacaoDaLegenda(legenda: string) {
-      const midias = await graph(
-        `${exigirInstagram()}/media`,
-        MidiasDoInstagram,
-        { params: { fields: "id,caption,permalink", limit: "50" } },
-      );
-      const achada = midias.data.find(
-        (m) => m.caption?.trim() === legenda.trim(),
-      );
-      return achada?.permalink
-        ? { id: achada.id, url: achada.permalink }
-        : undefined;
-    },
-
-    /** Imagem (JPEG num endereço público) com legenda. */
-    async publicar({ legenda, imagem }: { legenda: string; imagem: string }) {
-      if (legenda.length > LIMITE_DA_LEGENDA)
-        throw new ErroDaMeta(
-          `Legenda com mais de ${LIMITE_DA_LEGENDA} caracteres.`,
-        );
-      if (contarHashtags(legenda) > LIMITE_DE_HASHTAGS)
-        throw new ErroDaMeta(`Mais de ${LIMITE_DE_HASHTAGS} hashtags.`);
-
-      const ig = exigirInstagram();
-      // 1. Cria o contêiner; 2. espera o Instagram baixar a imagem; 3. publica
-      const conteiner = await graph(`${ig}/media`, Id, {
-        metodo: "POST",
-        params: { image_url: imagem, caption: legenda },
-      });
-      for (let tentativa = 0; ; tentativa++) {
-        const { status_code } = await graph(conteiner.id, StatusDoConteiner, {
-          params: { fields: "status_code" },
-        });
-        if (status_code === "FINISHED") break;
-        if (status_code !== "IN_PROGRESS" || tentativa >= 30)
-          throw new ErroDaMeta(`Contêiner do Instagram: ${status_code}`);
-        await new Promise((r) => setTimeout(r, esperaMs));
-      }
-      const { id } = await graph(`${ig}/media_publish`, Id, {
-        metodo: "POST",
-        params: { creation_id: conteiner.id },
-      });
-      const midia = await graph(id, MidiaDoInstagram, {
-        params: { fields: "id,permalink" },
-      });
-      return { id, url: midia.permalink ?? "https://www.instagram.com/" };
-    },
-  };
-
-  function exigirInstagram(): string {
-    if (!idDoInstagram)
-      throw new ErroDaMeta(
-        `A Página "${pagina.name}" não tem uma conta profissional do Instagram vinculada.`,
-      );
-    return idDoInstagram;
-  }
-
-  return { pagina, facebook, instagram };
+  return { pagina, facebook };
 }
 
 /** Endereço de um post da Página a partir do id `pagina_post`. */
