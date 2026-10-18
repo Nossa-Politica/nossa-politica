@@ -1,7 +1,8 @@
 name: Tokens das redes
 
 on:
-  # Toda segunda: renova o token do Threads (vence em 60 dias) e confere o da Meta
+  # Toda segunda: renova os tokens do Threads e do Instagram (vencem em 60
+  # dias) e confere o da Página do Facebook
   schedule:
     - cron: "0 10 * * 1"
   workflow_dispatch:
@@ -15,21 +16,31 @@ permissions:
   contents: read
 
 jobs:
-  threads:
-    name: threads
+  renovar:
+    name: renovar (${{ matrix.rede }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - rede: threads
+            secret: THREADS_ACCESS_TOKEN
+          - rede: instagram
+            secret: INSTAGRAM_ACCESS_TOKEN
     env:
       THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
+      INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
       # Token pessoal com permissão só de escrever secrets neste repositório
       # (o GITHUB_TOKEN dos workflows não pode alterar secrets)
       GH_TOKEN: ${{ secrets.TOKEN_SECRETS }}
+      SECRET: ${{ matrix.secret }}
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
       - name: Conferir os secrets
         run: |
-          if [ -z "$THREADS_ACCESS_TOKEN" ]; then
-            echo "::notice::THREADS_ACCESS_TOKEN ainda não configurado; nada a renovar."
+          if [ -z "${!SECRET}" ]; then
+            echo "::notice::$SECRET ainda não configurado; nada a renovar."
             exit 0
           fi
           if [ -z "$GH_TOKEN" ]; then
@@ -45,34 +56,32 @@ jobs:
           if [ "${{ inputs.so_conferir }}" = "true" ]; then exit 0; fi
           echo "RENOVAR=true" >> "$GITHUB_ENV"
       # Se falhar, o GitHub avisa por e-mail; o token antigo segue valendo até vencer
-      - name: Renovar o token do Threads
+      - name: Renovar o token
         if: env.RENOVAR == 'true'
         run: |
           set -o pipefail
-          pnpm -s exec tsx scripts/social/renovar-threads.ts \
-            | gh secret set THREADS_ACCESS_TOKEN --repo "${{ github.repository }}"
+          pnpm -s exec tsx scripts/social/renovar.ts "${{ matrix.rede }}" \
+            | gh secret set "$SECRET" --repo "${{ github.repository }}"
 
   # O token da Página não vence, mas a Meta o invalida se a senha mudar ou o
   # app perder a permissão. Se falhar, o GitHub avisa por e-mail.
-  meta:
-    name: meta
+  facebook:
+    name: facebook
     runs-on: ubuntu-latest
     env:
       META_PAGE_TOKEN: ${{ secrets.META_PAGE_TOKEN }}
     steps:
-      - name: Conferir o token da Página (Facebook e Instagram)
+      - name: Conferir o token da Página
         run: |
           if [ -z "$META_PAGE_TOKEN" ]; then
             echo "::notice::META_PAGE_TOKEN ainda não configurado."
             exit 0
           fi
-          resposta=$(curl -s "https://graph.facebook.com/v24.0/me?fields=name,instagram_business_account" \
-            --data-urlencode "access_token=$META_PAGE_TOKEN" -G)
+          resposta=$(curl -s -G "https://graph.facebook.com/v25.0/me" \
+            --data-urlencode "fields=name" \
+            --data-urlencode "access_token=$META_PAGE_TOKEN")
           if ! echo "$resposta" | jq -e '.id' > /dev/null; then
             echo "::error::Token da Página inválido: $(echo "$resposta" | jq -c '.error.message')"
             exit 1
           fi
           echo "Página: $(echo "$resposta" | jq -r '.name')"
-          if ! echo "$resposta" | jq -e '.instagram_business_account.id' > /dev/null; then
-            echo "::warning::A Página não tem Instagram profissional vinculado."
-          fi
