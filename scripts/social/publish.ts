@@ -73,8 +73,17 @@ async function publicarNaRede(
       console.log(`${nome}: ${antigo.url} seria apagado e publicado de novo.`);
       consulta = semPost(registro, rede, refazer);
     } else {
-      await (await entrar()).apagar(antigo.id);
-      console.log(`${nome}: apagado ${antigo.url}`);
+      const contaAtiva = await entrar();
+      if (contaAtiva.apagar) {
+        await contaAtiva.apagar(antigo.id);
+        console.log(`${nome}: apagado ${antigo.url}`);
+      } else {
+        // Sem como apagar pela API: se o post antigo ainda existir, a busca
+        // abaixo o encontra e ele só volta ao registro, sem repetir
+        console.log(
+          `::warning::${nome}: a API não permite apagar. Apague ${antigo.url} no app e rode de novo para republicar.`,
+        );
+      }
       Object.assign(registro, semPost(registro, rede, refazer));
       await salvarRegistro(opcoes.log, registro);
     }
@@ -103,7 +112,7 @@ async function publicarNaRede(
 
       await confirmarNoAr(link);
       const contaAtiva = await entrar();
-      const existente = await contaAtiva.publicacaoDoLink(link);
+      const existente = await contaAtiva.jaPublicado(post, link);
       const publicado = existente ?? (await contaAtiva.publicar(post, link));
 
       registro[rede] = {
