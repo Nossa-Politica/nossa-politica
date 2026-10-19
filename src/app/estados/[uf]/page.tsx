@@ -34,6 +34,7 @@ export async function generateMetadata({
   return {
     title: `${nome} · Nossa Política`,
     description: `Senadores e deputados federais ${deUf(uf.toUpperCase())}, gastos da bancada e emendas enviadas para o estado.`,
+    alternates: { canonical: `/estados/${uf.toLowerCase()}` },
   };
 }
 

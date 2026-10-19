@@ -35,6 +35,7 @@ export async function generateMetadata({
   return {
     title: `${titulo} (${formatarData(v.data)}) · Nossa Política`,
     description: `Como cada parlamentar votou: ${v.descricao.slice(0, 150)}`,
+    alternates: { canonical: `/votacoes/${casa}/${encodeURIComponent(v.id)}` },
   };
 }
 

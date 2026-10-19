@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   title: "Votações · Nossa Política",
   description:
     "As votações nominais da Câmara e do Senado e como cada parlamentar votou.",
+  alternates: { canonical: "/votacoes" },
 };
 
 const RECENTES = 60;

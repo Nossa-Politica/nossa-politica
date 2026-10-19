@@ -5,6 +5,7 @@ export const metadata: Metadata = {
   title: "Explorar · Nossa Política",
   description:
     "Todos os deputados e senadores lado a lado em presença, projetos, gastos, votações e emendas, com a mediana marcada.",
+  alternates: { canonical: "/explorar" },
 };
 
 export default function PaginaExplorar() {

@@ -51,7 +51,14 @@ const PASTA_FONTES = join(
   "node_modules/geist/dist/fonts/geist-sans",
 );
 
-async function fontes() {
+// Lidas uma vez só: o build gera mais de mil imagens
+let cacheDeFontes: ReturnType<typeof lerFontes> | undefined;
+const fontes = () => {
+  cacheDeFontes ??= lerFontes();
+  return cacheDeFontes;
+};
+
+async function lerFontes() {
   const [regular, seminegrito] = await Promise.all([
     readFile(join(PASTA_FONTES, "Geist-Regular.ttf")),
     readFile(join(PASTA_FONTES, "Geist-SemiBold.ttf")),
@@ -175,7 +182,12 @@ async function desenhar(
     </div>,
     { width: f.largura, height: f.altura, fonts: await fontes() },
   );
-  return new Resvg(svg, { fitTo: { mode: "width", value: f.largura } });
+  return new Resvg(svg, {
+    fitTo: { mode: "width", value: f.largura },
+    // O Satori já entrega o texto como contorno: carregar as fontes do sistema
+    // a cada imagem só deixaria o build lento
+    font: { loadSystemFonts: false },
+  });
 }
 
 /** PNG no formato horizontal (cartão de link). */

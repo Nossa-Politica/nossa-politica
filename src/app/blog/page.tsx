@@ -7,7 +7,10 @@ export const metadata: Metadata = {
   title: "Blog · Nossa Política",
   description:
     "Análises sobre o que os dados públicos do Congresso mostram, sempre com a fonte.",
-  alternates: { types: { "application/rss+xml": "/rss.xml" } },
+  alternates: {
+    canonical: "/blog",
+    types: { "application/rss+xml": "/rss.xml" },
+  },
 };
 
 export default function PaginaBlog() {

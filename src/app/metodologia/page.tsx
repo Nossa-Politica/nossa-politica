@@ -5,6 +5,7 @@ export const metadata: Metadata = {
   title: "Metodologia · Nossa Política",
   description:
     "Como cada número do site é calculado a partir dos dados oficiais da Câmara, do Senado, do Portal da Transparência e do TSE.",
+  alternates: { canonical: "/metodologia" },
 };
 
 /*

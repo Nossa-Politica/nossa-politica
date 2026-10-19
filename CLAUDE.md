@@ -41,6 +41,14 @@ Site de transparência política: qualquer pessoa encontra um deputado ou senado
 - Os testes usam respostas gravadas das APIs e amostras reais dos arquivos (pastas `__fixtures__/`), com CPFs e nomes de pessoas físicas trocados por valores fictícios.
 - **Nunca** coloque CPF ou nome de pessoa física real (fornecedor, doador, passageiro) em fixtures: o repositório é público.
 
+## SEO
+
+- `sitemap.xml` (`src/app/sitemap.ts`) lista todas as páginas geradas: páginas fixas, políticos, estados, votações e posts. `robots.txt` (`src/app/robots.ts`) libera tudo menos `/api/`.
+- Toda página tem endereço canônico (`alternates.canonical` nos metadados). Página nova também precisa ter, e entrar no sitemap se for indexável.
+- Dados estruturados (schema.org, componente `DadosEstruturados`): `WebSite` e `Organization` na home, `Person` nos perfis (sem números, só identificação) e `BlogPosting` nos posts, com a organização como autora.
+- Cada político tem imagem de compartilhamento própria (`public/og/politicos/<slug>.png`), gerada no build por `scripts/og/gerar.tsx`.
+- Fora de `nossapolitica.com.br` (previews dos PRs, `workers.dev`), as páginas saem com `X-Robots-Tag: noindex`.
+
 ## Blog
 
 - Os posts não têm autor: o projeto é anônimo, e nenhum nome pessoal entra no site, nos metadados ou no RSS.

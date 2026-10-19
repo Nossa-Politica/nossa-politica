@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ConteudoMdx } from "@/components/blog/conteudo-mdx";
+import { DadosEstruturados } from "@/components/dados-estruturados";
 import { Compartilhar } from "@/components/perfil/compartilhar";
 import { minutosDeLeitura, postPorSlug, postsPublicados } from "@/lib/blog";
 import { formatarData } from "@/lib/formatar";
+import { ORGANIZACAO, URL_DO_SITE } from "@/lib/site";
 
 export const dynamicParams = false;
 
@@ -22,6 +24,7 @@ export async function generateMetadata({
   return {
     title: `${post.titulo} · Nossa Política`,
     description: post.resumo,
+    alternates: { canonical: post.url },
     openGraph: {
       type: "article",
       title: post.titulo,
@@ -42,6 +45,20 @@ export default async function PaginaPost({
 
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-8">
+      <DadosEstruturados
+        dados={{
+          "@context": "https://schema.org",
+          "@type": "BlogPosting",
+          headline: post.titulo,
+          description: post.resumo,
+          datePublished: post.data,
+          url: `${URL_DO_SITE}${post.url}`,
+          image: `${URL_DO_SITE}/og/blog/${post.slug}.png`,
+          inLanguage: "pt-BR",
+          author: ORGANIZACAO,
+          publisher: ORGANIZACAO,
+        }}
+      />
       <article className="flex flex-col">
         <header className="flex flex-col gap-3">
           <p className="text-sm text-muted-foreground">
