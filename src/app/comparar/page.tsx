@@ -5,6 +5,7 @@ export const metadata: Metadata = {
   title: "Comparar · Nossa Política",
   description:
     "Compare dois ou três deputados ou senadores nos mesmos indicadores.",
+  alternates: { canonical: "/comparar" },
 };
 
 export default function PaginaComparar() {

@@ -55,6 +55,12 @@ const nextConfig: NextConfig = {
         : [];
     return [
       { source: "/:caminho*", headers: [...CABECALHOS_DE_SEGURANCA, ...csp] },
+      // Previews dos PRs e endereços antigos não entram nos buscadores
+      {
+        source: "/:caminho*",
+        missing: [{ type: "host" as const, value: "nossapolitica.com.br" }],
+        headers: [{ key: "X-Robots-Tag", value: "noindex" }],
+      },
     ];
   },
   async redirects() {

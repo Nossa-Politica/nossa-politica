@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: "Estados · Nossa Política",
   description:
     "A bancada de cada estado no Congresso, os gastos e as emendas enviadas.",
+  alternates: { canonical: "/estados" },
 };
 
 export default function PaginaEstados() {

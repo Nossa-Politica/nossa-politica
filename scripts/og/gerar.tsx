@@ -1,12 +1,15 @@
 /**
  * Gera as imagens de compartilhamento em `public/og/` antes do build:
- * uma padrão do site e uma por post do blog.
+ * uma padrão do site, uma por post do blog (mais a vertical do Instagram) e
+ * uma por político (se houver `dados/`).
  *
  *   tsx scripts/og/gerar.tsx   # roda sozinho no `pnpm build`
  */
+import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { z } from "zod";
+import { ListaPessoas } from "../../etl/pessoas/saida";
 import { gerarImagem, imagemDoPost, imagemVerticalDoPost } from "./imagem";
 
 const PASTA = join(process.cwd(), "public/og");
@@ -48,7 +51,35 @@ async function main() {
       await imagemVerticalDoPost(post),
     );
   }
-  console.log(`Imagens de compartilhamento: padrão e ${posts.length} post(s).`);
+
+  const pessoas = await gerarPoliticos();
+  console.log(
+    `Imagens de compartilhamento: padrão, ${posts.length} post(s) e ${pessoas} político(s).`,
+  );
+}
+
+const CASA = { camara: "Câmara dos Deputados", senado: "Senado Federal" };
+
+/** Uma imagem por político, com nome, casa e partido. Sem números: só a identificação. */
+async function gerarPoliticos(): Promise<number> {
+  const arquivo = join(process.env.DADOS_DIR ?? "dados", "pessoas.json");
+  if (!existsSync(arquivo)) return 0;
+  const { pessoas } = ListaPessoas.parse(
+    JSON.parse(await readFile(arquivo, "utf8")),
+  );
+  await mkdir(join(PASTA, "politicos"), { recursive: true });
+  for (const p of pessoas) {
+    await writeFile(
+      join(PASTA, "politicos", `${p.slug}.png`),
+      await gerarImagem({
+        chapeu: `${CASA[p.casa]} · ${p.partido}-${p.uf}`,
+        titulo: p.nome,
+        subtitulo:
+          "Gastos, projetos, votações, presença e emendas, comparados com os colegas.",
+      }),
+    );
+  }
+  return pessoas.length;
 }
 
 main().catch((erro) => {

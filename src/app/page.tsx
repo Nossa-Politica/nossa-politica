@@ -1,10 +1,20 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { CampoBusca } from "@/components/busca/campo-busca";
 import { QuemMeRepresenta } from "@/components/busca/quem-me-representa";
+import { DadosEstruturados } from "@/components/dados-estruturados";
 import { ItemVotacao } from "@/components/votacoes/item-votacao";
 import { postsPublicados } from "@/lib/blog";
 import { existemDados, lerFontes, listarVotacoes } from "@/lib/dados";
 import { formatarData } from "@/lib/formatar";
+import { ORGANIZACAO, URL_DO_SITE } from "@/lib/site";
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "/",
+    types: { "application/rss+xml": "/rss.xml" },
+  },
+};
 
 export default function Home() {
   const atualizadoEm = lerFontes()?.camara?.atualizadoEm;
@@ -20,6 +30,21 @@ export default function Home() {
 
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-10 px-4 py-10">
+      <DadosEstruturados
+        dados={{
+          "@context": "https://schema.org",
+          "@graph": [
+            { ...ORGANIZACAO, "@id": `${URL_DO_SITE}/#organizacao` },
+            {
+              "@type": "WebSite",
+              name: "Nossa Política",
+              url: URL_DO_SITE,
+              inLanguage: "pt-BR",
+              publisher: { "@id": `${URL_DO_SITE}/#organizacao` },
+            },
+          ],
+        }}
+      />
       <section className="flex flex-col gap-4">
         <h1 className="font-heading text-4xl font-semibold tracking-tight">
           O que o seu político fez?

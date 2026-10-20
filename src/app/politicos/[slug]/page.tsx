@@ -1,6 +1,9 @@
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { DadosEstruturados } from "@/components/dados-estruturados";
 import { BlocoEleicoes } from "@/components/perfil/bloco-eleicoes";
 import { BlocoEmendas } from "@/components/perfil/bloco-emendas";
 import { BlocoGastos } from "@/components/perfil/bloco-gastos";
@@ -10,12 +13,19 @@ import { BlocoVotacoes } from "@/components/perfil/bloco-votacoes";
 import { Cabecalho } from "@/components/perfil/cabecalho";
 import { CartoesResumo } from "@/components/perfil/cartoes-resumo";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cargo, formatarInteiro, nomeLegislatura, UFS } from "@/lib/formatar";
+import {
+  cargo,
+  formatarInteiro,
+  NOME_DA_CASA,
+  nomeLegislatura,
+  UFS,
+} from "@/lib/formatar";
 import {
   carregarPerfil,
   type MandatoDoPerfil,
   slugsDosPerfis,
 } from "@/lib/perfil";
+import { URL_DO_SITE } from "@/lib/site";
 
 // Todas as páginas são geradas no build; endereço fora da lista é 404
 export const dynamicParams = false;
@@ -32,10 +42,25 @@ export async function generateMetadata({
   if (!perfil) return {};
   const { pessoa } = perfil;
   const descricao = `${cargo(pessoa.casa, pessoa.sexo)} (${pessoa.partido}-${pessoa.uf}): gastos, projetos, votações, presença, emendas e eleições, com dados oficiais.`;
+  // Imagem própria gerada no build (scripts/og/gerar.tsx); sem ela, a padrão
+  const imagem = `/og/politicos/${slug}.png`;
+  const temImagem = existsSync(join(process.cwd(), "public", imagem));
   return {
     title: `${pessoa.nome} · Nossa Política`,
     description: descricao,
-    openGraph: { title: pessoa.nome, description: descricao, type: "profile" },
+    alternates: { canonical: `/politicos/${slug}` },
+    openGraph: {
+      title: pessoa.nome,
+      description: descricao,
+      type: "profile",
+      ...(temImagem && {
+        images: [{ url: imagem, width: 1200, height: 630 }],
+      }),
+    },
+    twitter: {
+      card: "summary_large_image",
+      ...(temImagem && { images: [imagem] }),
+    },
   };
 }
 
@@ -102,6 +127,24 @@ export default async function PaginaPolitico({
 
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-4 py-8">
+      <DadosEstruturados
+        dados={{
+          "@context": "https://schema.org",
+          "@type": "Person",
+          name: pessoa.nome,
+          ...(pessoa.nomeCivil && { alternateName: pessoa.nomeCivil }),
+          image: pessoa.urlFoto,
+          url: `${URL_DO_SITE}/politicos/${pessoa.slug}`,
+          ...(pessoa.emExercicio && {
+            jobTitle: cargo(pessoa.casa, pessoa.sexo),
+            worksFor: {
+              "@type": "GovernmentOrganization",
+              name: NOME_DA_CASA[pessoa.casa],
+            },
+          }),
+          affiliation: { "@type": "Organization", name: pessoa.partido },
+        }}
+      />
       <Cabecalho pessoa={pessoa} mandatos={mandatos} />
 
       {mandatos.length === 1 ? (
