@@ -105,6 +105,7 @@ export function Comparar() {
                 <button
                   type="button"
                   onClick={() => setSlugs(slugs.filter((s) => s !== p.slug))}
+                  aria-label={`Remover ${p.nome} da comparação`}
                   className="flex w-fit items-center gap-1 text-xs text-muted-foreground underline underline-offset-2"
                 >
                   <X className="size-3" aria-hidden="true" /> Remover
@@ -117,9 +118,9 @@ export function Comparar() {
               const chaveMediana = MEDIANA_DO_INDICADOR[chave];
               return (
                 <div key={chave} className="flex flex-col gap-1.5 py-3">
-                  <h3 className="text-sm font-normal text-muted-foreground">
+                  <h2 className="text-sm font-normal text-muted-foreground">
                     {INDICADORES[chave].rotulo}
-                  </h3>
+                  </h2>
                   <div
                     className="grid gap-3"
                     style={{

@@ -41,6 +41,12 @@ Site de transparência política: qualquer pessoa encontra um deputado ou senado
 - Os testes usam respostas gravadas das APIs e amostras reais dos arquivos (pastas `__fixtures__/`), com CPFs e nomes de pessoas físicas trocados por valores fictícios.
 - **Nunca** coloque CPF ou nome de pessoa física real (fornecedor, doador, passageiro) em fixtures: o repositório é público.
 
+## Acessibilidade
+
+- `e2e/acessibilidade.spec.ts` audita as principais páginas com o axe (WCAG 2.1 A e AA, mais as boas práticas), nos temas claro e escuro, no computador e no celular. Também testa o teclado: o atalho "Pular para o conteúdo", o glossário (Enter abre, Esc fecha) e o contorno de foco. Página nova entra na lista `PAGINAS` do teste.
+- Títulos em ordem (`h1` → `h2` → `h3`, sem pular nível), botões com nome que diga o que fazem (`aria-label` quando o texto visível é genérico, como "Remover"), e nada de `aside` dentro do conteúdo (é uma região da página).
+- Textos sobre os gráficos (eixos) ficam fora da conta automática do axe: use `muted-foreground` ou mais escuro, que passa de 4,5:1 nos dois temas.
+
 ## SEO
 
 - `sitemap.xml` (`src/app/sitemap.ts`) lista todas as páginas geradas: páginas fixas, políticos, estados, votações e posts. `robots.txt` (`src/app/robots.ts`) libera tudo menos `/api/`.
