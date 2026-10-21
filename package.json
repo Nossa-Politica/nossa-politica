@@ -44,6 +44,7 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.11.0",
     "@biomejs/biome": "^2.5.15",
     "@playwright/test": "^1.64.0",
     "@resvg/resvg-js": "^2.6.2",

@@ -156,9 +156,13 @@ function Colunas({
 
 function Destaque({ children }: { children: ReactNode }) {
   return (
-    <aside className="my-6 rounded-xl border-l-4 border-serie bg-muted px-4 py-3 text-base">
+    // Um bloco de destaque dentro do texto, não uma região da página (`aside`)
+    <div
+      role="note"
+      className="my-6 rounded-xl border-l-4 border-serie bg-muted px-4 py-3 text-base"
+    >
       {children}
-    </aside>
+    </div>
   );
 }
 

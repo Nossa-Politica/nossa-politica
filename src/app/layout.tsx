@@ -34,6 +34,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
+        {/* Primeiro item do Tab: pula o menu para quem navega pelo teclado */}
+        <a
+          href="#conteudo"
+          className="sr-only rounded-md bg-background text-sm font-medium shadow-md focus:not-sr-only focus:px-3 focus:py-2 focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:ring-2 focus:ring-ring"
+        >
+          Pular para o conteúdo
+        </a>
         <header className="border-b">
           <div className="mx-auto flex w-full max-w-3xl flex-wrap items-center gap-x-5 gap-y-1 px-4 py-3">
             <Link href="/" className="font-heading font-semibold">
@@ -61,7 +68,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             </nav>
           </div>
         </header>
-        {children}
+        <div
+          id="conteudo"
+          tabIndex={-1}
+          className="flex flex-1 flex-col outline-none"
+        >
+          {children}
+        </div>
         <footer className="mt-auto border-t">
           <div className="mx-auto flex w-full max-w-3xl flex-col gap-1 px-4 py-6 text-xs text-muted-foreground">
             <p>
