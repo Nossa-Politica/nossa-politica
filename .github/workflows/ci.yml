@@ -105,6 +105,22 @@ jobs:
           PLAYWRIGHT_BASE_URL: ${{ steps.upload.outputs.url }}
         run: pnpm test:e2e
 
+      # Desempenho, acessibilidade, boas práticas e SEO das páginas principais.
+      # O desempenho só avisa: no CI ele varia de uma execução para outra.
+      # (O preview sai com noindex de propósito, por isso o is-crawlable fica
+      # desligado em lighthouserc.json.)
+      - name: Lighthouse contra o preview
+        env:
+          URL: ${{ steps.upload.outputs.url }}
+        run: |
+          export CHROME_PATH=$(node -e "console.log(require('@playwright/test').chromium.executablePath())")
+          pnpm exec lhci autorun \
+            --collect.url="$URL/" \
+            --collect.url="$URL/politicos/tabata-amaral" \
+            --collect.url="$URL/explorar" \
+            --collect.url="$URL/votacoes" \
+            --collect.url="$URL/blog/como-medimos"
+
       - name: Relatório do Playwright
         if: failure()
         uses: actions/upload-artifact@v7

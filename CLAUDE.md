@@ -47,6 +47,13 @@ Site de transparência política: qualquer pessoa encontra um deputado ou senado
 - Títulos em ordem (`h1` → `h2` → `h3`, sem pular nível), botões com nome que diga o que fazem (`aria-label` quando o texto visível é genérico, como "Remover"), e nada de `aside` dentro do conteúdo (é uma região da página).
 - Textos sobre os gráficos (eixos) ficam fora da conta automática do axe: use `muted-foreground` ou mais escuro, que passa de 4,5:1 nos dois temas.
 
+## Desempenho e analytics
+
+- O Lighthouse roda no preview de todo PR (`lighthouserc.json`) em 5 páginas. Acessibilidade, boas práticas e SEO abaixo de 90 (95 na acessibilidade) e CLS acima de 0,1 reprovam o PR. O desempenho só avisa, porque varia entre execuções. O relatório completo fica num link público no log do job.
+- Páginas já geradas saem do cache sem carregar o servidor do Next.js (`enableCacheInterception` em `open-next.config.ts`).
+- Conteúdo que carrega no navegador (Explorar, Comparar) reserva o espaço enquanto carrega, para o rodapé não pular.
+- Analytics: Cloudflare Web Analytics, injetado pela Cloudflare, sem cookies e sem dado pessoal. Por isso não precisa de consentimento. A CSP libera `static.cloudflareinsights.com` e `cloudflareinsights.com`.
+
 ## SEO
 
 - `sitemap.xml` (`src/app/sitemap.ts`) lista todas as páginas geradas: páginas fixas, políticos, estados, votações e posts. `robots.txt` (`src/app/robots.ts`) libera tudo menos `/api/`.
