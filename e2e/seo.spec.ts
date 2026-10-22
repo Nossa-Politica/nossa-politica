@@ -49,5 +49,6 @@ test("previews não entram nos buscadores", async ({ request, baseURL }) => {
     "Só fora do domínio principal",
   );
   const resposta = await request.get("/");
+  expect(resposta.status()).toBe(200);
   expect(resposta.headers()["x-robots-tag"]).toBe("noindex");
 });

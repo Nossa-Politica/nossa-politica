@@ -14,16 +14,17 @@ const HOSTS_REDIRECIONADOS = [
  * A política de conteúdo (CSP) só permite scripts do próprio site. O
  * 'unsafe-inline' é necessário porque as páginas são estáticas e o Next.js
  * embute scripts nelas (não há como gerar um nonce por visita). Fotos vêm dos
- * sites da Câmara e do Senado. Analytics ou anúncios novos precisam entrar
- * aqui, senão o navegador os bloqueia.
+ * sites da Câmara e do Senado. O Cloudflare Web Analytics (sem cookies) é
+ * injetado pela própria Cloudflare. Analytics ou anúncios novos precisam
+ * entrar aqui, senão o navegador os bloqueia.
  */
 const CSP = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline'",
+  "script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: https:",
   "font-src 'self'",
-  "connect-src 'self'",
+  "connect-src 'self' https://cloudflareinsights.com",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",

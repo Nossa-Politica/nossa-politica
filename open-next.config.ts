@@ -6,4 +6,8 @@ import staticAssetsIncrementalCache from "@opennextjs/cloudflare/overrides/incre
 // e não ocupa o R2.
 export default defineCloudflareConfig({
   incrementalCache: staticAssetsIncrementalCache,
+  // Páginas já geradas saem direto do cache, sem carregar o servidor do
+  // Next.js: menos tempo de resposta, principalmente com o Worker "frio".
+  // Não serve com PPR, que o projeto não usa.
+  enableCacheInterception: true,
 });

@@ -97,6 +97,21 @@ jobs:
               await github.rest.issues.createComment({ owner, repo, issue_number, body });
             }
 
+      # Logo depois do upload, a versão nova ainda pode não estar no ar em
+      # todos os pontos da Cloudflare: espera a home responder com os
+      # cabeçalhos do build novo antes dos testes
+      - name: Esperar o preview ficar no ar
+        env:
+          URL: ${{ steps.upload.outputs.url }}
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sf -D - -o /dev/null "$URL/" | grep -qi '^x-robots-tag: noindex'; then
+              echo "Preview no ar."; exit 0
+            fi
+            sleep 2
+          done
+          echo "::error::O preview não respondeu em 60 s."; exit 1
+
       - name: Instalar navegador do Playwright
         run: pnpm exec playwright install --with-deps chromium
 
@@ -104,6 +119,22 @@ jobs:
         env:
           PLAYWRIGHT_BASE_URL: ${{ steps.upload.outputs.url }}
         run: pnpm test:e2e
+
+      # Desempenho, acessibilidade, boas práticas e SEO das páginas principais.
+      # O desempenho só avisa: no CI ele varia de uma execução para outra.
+      # (O preview sai com noindex de propósito, por isso o is-crawlable é
+      # pulado em lighthouserc.json e não pesa na nota de SEO.)
+      - name: Lighthouse contra o preview
+        env:
+          URL: ${{ steps.upload.outputs.url }}
+        run: |
+          export CHROME_PATH=$(node -e "console.log(require('@playwright/test').chromium.executablePath())")
+          pnpm exec lhci autorun \
+            --collect.url="$URL/" \
+            --collect.url="$URL/politicos/tabata-amaral" \
+            --collect.url="$URL/explorar" \
+            --collect.url="$URL/votacoes" \
+            --collect.url="$URL/blog/como-medimos"
 
       - name: Relatório do Playwright
         if: failure()

@@ -239,7 +239,9 @@ export function Explorar() {
         </p>
       )}
       {!dados && !erro && (
-        <p className="text-sm text-muted-foreground">Carregando…</p>
+        // Ocupa a altura da tela enquanto carrega, para o rodapé não pular
+        // quando a lista chega (CLS)
+        <p className="min-h-svh text-sm text-muted-foreground">Carregando…</p>
       )}
 
       {dados && (
