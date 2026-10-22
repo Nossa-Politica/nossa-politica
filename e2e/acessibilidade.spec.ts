@@ -18,6 +18,7 @@ const PAGINAS = [
   "/blog",
   "/blog/como-medimos",
   "/metodologia",
+  "/privacidade",
 ];
 
 for (const tema of ["light", "dark"] as const) {

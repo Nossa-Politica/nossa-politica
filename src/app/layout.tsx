@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
+import { BannerConsentimento } from "@/components/consentimento/banner";
+import { LinkPreferencias } from "@/components/consentimento/link-preferencias";
 import { URL_DO_SITE } from "@/lib/site";
 import "./globals.css";
 
@@ -81,16 +83,24 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               Dados públicos da Câmara, do Senado, do Portal da Transparência e
               do TSE. Site independente e sem vínculo com partidos.
             </p>
-            <p>
+            <p className="flex flex-wrap gap-x-4 gap-y-1">
               <Link
                 href="/metodologia"
                 className="underline underline-offset-2"
               >
                 Como calculamos cada número
               </Link>
+              <Link
+                href="/privacidade"
+                className="underline underline-offset-2"
+              >
+                Privacidade
+              </Link>
+              <LinkPreferencias />
             </p>
           </div>
         </footer>
+        <BannerConsentimento />
       </body>
     </html>
   );

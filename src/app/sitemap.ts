@@ -18,6 +18,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/estados",
     "/blog",
     "/metodologia",
+    "/privacidade",
   ].map((caminho) => ({ url: url(caminho) }));
 
   return [
