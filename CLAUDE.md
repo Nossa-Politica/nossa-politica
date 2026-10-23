@@ -54,6 +54,11 @@ Site de transparência política: qualquer pessoa encontra um deputado ou senado
 - Conteúdo que carrega no navegador (Explorar, Comparar) reserva o espaço enquanto carrega, para o rodapé não pular.
 - Analytics: Cloudflare Web Analytics, injetado pela Cloudflare, sem cookies e sem dado pessoal. Por isso não precisa de consentimento. A CSP libera `static.cloudflareinsights.com` e `cloudflareinsights.com`.
 
+## Privacidade e consentimento
+
+- `/privacidade` explica, em linguagem simples, o que o site trata: nada de cookies próprios, analytics sem cookies, dados de parlamentares públicos e CPF de terceiros mascarado. Contato: `contato@nossapolitica.com.br` (Cloudflare Email Routing). Qualquer mudança no que o site coleta atualiza a página e a data `ATUALIZADA_EM` no mesmo PR.
+- O banner de cookies (`src/components/consentimento/`) está pronto e desligado (`ANUNCIOS_ATIVOS` em `src/lib/consentimento.ts`), porque o site ainda não tem cookies opcionais. Quando os anúncios entrarem, siga o passo a passo no topo desse arquivo. Nenhum script de anúncio carrega antes do "Aceitar", e recusar é tão fácil quanto aceitar.
+
 ## SEO
 
 - `sitemap.xml` (`src/app/sitemap.ts`) lista todas as páginas geradas: páginas fixas, políticos, estados, votações e posts. `robots.txt` (`src/app/robots.ts`) libera tudo menos `/api/`.
