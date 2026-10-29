@@ -19,13 +19,23 @@ const ADM = "https://adm.senado.gov.br/adm-dadosabertos/api/v1";
 
 const semHifen = (data: string) => data.replaceAll("-", "");
 
+/*
+ * A API do Senado tem quedas curtas (503) que duram mais que a espera padrão
+ * (~15 s). Com 8 tentativas a partir de 2 s, a carga espera até ~4 min antes
+ * de desistir de uma consulta.
+ */
+const PACIENCIA: OpcoesHttp = { tentativas: 8, esperaInicialMs: 2000 };
+
+const buscarDoSenado = (url: string, opcoes: OpcoesHttp = {}) =>
+  buscarJson(url, { ...PACIENCIA, ...opcoes });
+
 /** Todos que tiveram mandato na legislatura, incluindo suplentes que nunca assumiram. */
 export async function buscarSenadoresDaLegislatura(
   legislatura: number,
   opcoes: OpcoesHttp = {},
 ): Promise<SenadorDaLista[]> {
   const json = ListaDaLegislatura.parse(
-    await buscarJson(
+    await buscarDoSenado(
       `${LEGIS}/senador/lista/legislatura/${legislatura}`,
       opcoes,
     ),
@@ -42,7 +52,10 @@ export async function buscarMandatos(
   codigo: number,
   opcoes: OpcoesHttp = {},
 ): Promise<MandatoSenado[]> {
-  const json = await buscarJson(`${LEGIS}/senador/${codigo}/mandatos`, opcoes);
+  const json = await buscarDoSenado(
+    `${LEGIS}/senador/${codigo}/mandatos`,
+    opcoes,
+  );
   return RespostaMandatos.parse(json).MandatoParlamentar.Parlamentar.Mandatos;
 }
 
@@ -50,7 +63,10 @@ export async function buscarFiliacoes(
   codigo: number,
   opcoes: OpcoesHttp = {},
 ): Promise<Filiacao[]> {
-  const json = await buscarJson(`${LEGIS}/senador/${codigo}/filiacoes`, opcoes);
+  const json = await buscarDoSenado(
+    `${LEGIS}/senador/${codigo}/filiacoes`,
+    opcoes,
+  );
   return RespostaFiliacoes.parse(json).FiliacaoParlamentar.Parlamentar
     .Filiacoes;
 }
@@ -60,7 +76,7 @@ export async function buscarProcessosDoAutor(
   codigo: number,
   opcoes: OpcoesHttp = {},
 ): Promise<ProcessoSenado[]> {
-  const json = await buscarJson(
+  const json = await buscarDoSenado(
     `${LEGIS}/processo?codigoParlamentarAutor=${codigo}`,
     opcoes,
   );
@@ -77,7 +93,7 @@ export async function buscarVotacoes(
   fim: string,
   opcoes: OpcoesHttp = {},
 ): Promise<VotacaoSenado[]> {
-  const json = await buscarJson(
+  const json = await buscarDoSenado(
     `${LEGIS}/votacao?dataInicio=${inicio}&dataFim=${fim}`,
     opcoes,
   );
@@ -93,7 +109,7 @@ export async function buscarOrientacoes(
   fim: string,
   opcoes: OpcoesHttp = {},
 ): Promise<OrientacaoSenado[]> {
-  const json = await buscarJson(
+  const json = await buscarDoSenado(
     `${LEGIS}/plenario/votacao/orientacaoBancada/${semHifen(inicio)}/${semHifen(fim)}`,
     opcoes,
   );
@@ -112,7 +128,7 @@ export async function buscarDespesas(
   ano: number,
   opcoes: OpcoesHttp = {},
 ): Promise<DespesaCeaps[]> {
-  const json = await buscarJson(`${ADM}/senadores/despesas_ceaps/${ano}`, {
+  const json = await buscarDoSenado(`${ADM}/senadores/despesas_ceaps/${ano}`, {
     timeoutMs: 5 * 60_000,
     ...opcoes,
   });
