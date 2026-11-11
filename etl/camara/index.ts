@@ -56,7 +56,11 @@ async function main() {
   const atualizadoEm = new Date().toISOString();
 
   // 1. Legislaturas e anos
-  const legislaturas = await buscarLegislaturas(LEGISLATURAS_NO_SITE, hoje);
+  const legislaturas = await buscarLegislaturas(
+    LEGISLATURAS_NO_SITE,
+    hoje,
+    pastaDados,
+  );
   const primeiroAno = Number(legislaturas[0].dataInicio.slice(0, 4));
   const anoAtual = Number(hoje.slice(0, 4));
   const todosOsAnos = Array.from(

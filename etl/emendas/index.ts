@@ -72,6 +72,7 @@ async function main() {
   const legislaturas = await buscarLegislaturas(
     LEGISLATURAS_NO_SITE,
     hojeEmBrasilia(),
+    values.dados,
   );
   const anoInicial = Number(legislaturas[0].dataInicio.slice(0, 4)) + 1;
 

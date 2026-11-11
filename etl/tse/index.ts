@@ -42,7 +42,11 @@ async function main() {
 
   // Eleições gerais (a cada 4 anos) desde a que elegeu os senadores mais
   // antigos da legislatura anterior: mandato de 8 anos, eleitos 5 anos antes
-  const legislaturas = await buscarLegislaturas(LEGISLATURAS_NO_SITE, hoje);
+  const legislaturas = await buscarLegislaturas(
+    LEGISLATURAS_NO_SITE,
+    hoje,
+    values.dados,
+  );
   const primeira = Number(legislaturas[0].dataInicio.slice(0, 4)) - 5;
   const anoAtual = Number(hoje.slice(0, 4));
   const eleicoes: number[] = [];
